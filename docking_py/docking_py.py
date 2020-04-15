@@ -33,17 +33,11 @@ __status__ = "Prototype"
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
     print('Smina cannot be found')
-    GMX_BIN = ''
-    gmx_version = ''
     SMINA_LIG = ''
     SMINA_REC = ''
     SMINA_GPF = ''
     SMINA_PYTHON = ''
 else:
-    GMX_BIN = os_command.which('gmx')
-    gmx_version = os_command.get_gmx_version()
-    print("Gromacs version is {}".format(gmx_version))
-
     SMINA_LIG = os_command.which('prepare_ligand4.py')
     print("Smina ligand script is {}".format(SMINA_LIG))
     SMINA_REC = os_command.which('prepare_receptor4.py')
