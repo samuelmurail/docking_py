@@ -1,0 +1,16 @@
+name: smina_py
+channels:
+  - conda-forge
+  - bioconda
+  - acellera
+dependencies:
+  - python=3.7
+  - gromacs 
+  - mgltools
+  - smina
+  - vina
+  - qvina
+  - pip
+  - pip:
+    - gromacs_py
+
