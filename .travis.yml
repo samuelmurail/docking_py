@@ -20,7 +20,7 @@ branches:
 env:
   global:
     - PYTHON_VERSION=3.6
-    - CONDA_DEPENDENCIES="pip pandoc ipython mgltools smina vina qvina"
+    - CONDA_DEPENDENCIES="pandoc ipython mgltools smina vina qvina"
     - CONDA_CHANNELS="conda-forge bioconda acellera"
 
 
@@ -31,7 +31,8 @@ install:
   - git clone --depth 1 git://github.com/astropy/ci-helpers.git
   - source ci-helpers/travis/setup_conda.sh
   # Install gromacs_py
-  - pip install -U tox-travis
+  - pip install .
+  - pip install tox-travis
 
 # Command to run tests, e.g. python setup.py test
 script: tox
