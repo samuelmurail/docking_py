@@ -19,7 +19,7 @@ branches:
 
 env:
   global:
-    - PYTHON_VERSION=3.6
+    - PYTHON_VERSION=3.8
     - CONDA_DEPENDENCIES="pandoc ipython mgltools smina vina qvina"
     - CONDA_CHANNELS="conda-forge bioconda acellera"
 
