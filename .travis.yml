@@ -23,8 +23,12 @@ install:
   - conda activate docking
   # Need to update pip, setuptools and wheel only for python3.5
   - pip install -U pip setuptools wheel 
-  - pip install tox-travis
+  # Install tox-travis to use tox in travis
+  - pip install tox-travis tox-conda
   - pip install -r requirements.txt
 
 script:
   - tox
+
+after_success:
+  - codecov
