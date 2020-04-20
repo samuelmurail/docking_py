@@ -20,6 +20,7 @@ install:
   - conda config --add channels bioconda
   - conda create -q --name docking python=$TRAVIS_PYTHON_VERSION mgltools smina vina qvina
   - conda activate docking
+  - pip install -U pip setuptools wheel
   - pip install -r requirements.txt
 
 script:
