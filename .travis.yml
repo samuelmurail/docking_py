@@ -1,56 +1,25 @@
-# Config file for automatic testing at travis-ci.com
-
-# Inspired by :
-# https://github.com/astropy/ci-helpers/blob/master/.travis.yml
-# And:
-# https://github.com/Becksteinlab/GromacsWrapper/blob/master/.travis.yml
-
-language: generic
-
-os:
-  - linux
-
-git:
-  depth: false
-
-branches:
-  only:
-    - master
-
-env:
-  global:
-    - GROMACS_VERSION=2019.1
-    - PYTHON_VERSION=3.6
-    - CONDA_DEPENDENCIES="pandoc ipython mgltools smina vina qvina"
-    - CONDA_CHANNELS="conda-forge bioconda acellera"
-
-matrix:
-    include:
-        - os: linux
-          env: PYTHON_VERSION=3.5
-        - os: linux
-          env: PYTHON_VERSION=3.7
-        - os: osx
-          env: GROMACS_VERSION=2018.5
+language: python
+python:
+  # We don't actually use the Travis Python, but this keeps it organized.
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8"
 
 install:
-  # Install astropy to build python and gromacs with conda
-  - git clone --depth 1 git://github.com/astropy/ci-helpers.git
-  - source ci-helpers/travis/setup_conda.sh
-  # Install docking_py
-  - pip install -r requirements.txt
+  - sudo apt-get update
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
 
-# Assuming you have installed the travis-ci CLI tool, after you
-# create the Github repo and add it to Travis, run the
-# following command to finish PyPI deployment setup:
-# $ travis encrypt --add deploy.password
-deploy:
-  provider: pypi
-  distributions: sdist bdist_wheel
-  user: samuel.murail
-  password:
-    secure: PLEASE_REPLACE_ME
-  on:
-    tags: true
-    repo: samuelmurail/docking_py
-    python: 3.8
+  # Replace dep1 dep2 ... with your dependencies
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION mgltools smina vina qvina
+  - conda activate test-environment
+  - python setup.py install
