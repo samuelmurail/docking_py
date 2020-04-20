@@ -33,7 +33,7 @@ install:
   # Install gromacs_py
   #- pip install -r requirements.txt
   #- pip install tox-travis
-  - ./setup.py install
+  - pip install -r requirements.txt
 # Command to run tests, e.g. python setup.py test
 script: tox
 
