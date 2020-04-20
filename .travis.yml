@@ -21,8 +21,10 @@ install:
   - conda config --add channels acellera
   - conda create -q --name docking python=$TRAVIS_PYTHON_VERSION mgltools smina vina qvina
   - conda activate docking
-  - pip install -U pip setuptools wheel
+  # Need to update pip, setuptools and wheel only for python3.5
+  - pip install -U pip setuptools wheel 
+  - pip install tox-travis
   - pip install -r requirements.txt
 
 script:
-  - pytest
+  - tox
