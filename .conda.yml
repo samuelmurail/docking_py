@@ -1,4 +1,4 @@
-name: conda_py
+name: docking
 channels:
   - conda-forge
   - bioconda
