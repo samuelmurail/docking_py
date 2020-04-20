@@ -43,8 +43,14 @@ else:
     print("Smina receptor script is {}".format(SMINA_REC))
 
     CONDA_PREFIX = os.getenv('CONDA_PREFIX')
+    # With tox CONDA_PREFIX is None
+    if CONDA_PREFIX is None:
+        CONDA_PREFIX = '/'.join(SMINA_REC.split('/')[:-2])
+
     # Find a way to fix this !!
-    SMINA_GPF = os.path.join(CONDA_PREFIX, 'MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py')
+    SMINA_GPF = os.path.join(
+        CONDA_PREFIX,
+        'MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py')
     print("Smina grid script is {}".format(SMINA_GPF))
 
     # Find python 2 from conda env
@@ -291,7 +297,11 @@ class Docking:
                       exhaustiveness=16, autobox=False, check_file_out=True):
         """
         Run docking
-        /home/tuffery/Work/prgs/Src/Ext/SMINA/smina.static --center_x 56.35  --center_y -0.27 --center_z 29.72 --size_x 30. --size_y 30. --size_z 30. -l peptest.pdbqt -r 2j0tA-m1.pdbqt -o test.pdb  --num_modes 10
+        /home/tuffery/Work/prgs/Src/Ext/SMINA/smina.static
+            --center_x 56.35  --center_y -0.27 --center_z 29.72
+            --size_x 30. --size_y 30. --size_z 30.
+            -l peptest.pdbqt -r 2j0tA-m1.pdbqt -o test.pdb
+            --num_modes 10
         """
 
         # If out_pdb is not defined use the rec_pdbqt name + .gpf
@@ -343,7 +353,11 @@ class Docking:
                      check_file_out=True, cpu=None):
         """
         Run docking
-        /home/tuffery/Work/prgs/Src/Ext/SMINA/smina.static --center_x 56.35  --center_y -0.27 --center_z 29.72 --size_x 30. --size_y 30. --size_z 30. -l peptest.pdbqt -r 2j0tA-m1.pdbqt -o test.pdb  --num_modes 10
+        /home/tuffery/Work/prgs/Src/Ext/SMINA/smina.static
+            --center_x 56.35  --center_y -0.27 --center_z 29.72
+            --size_x 30. --size_y 30. --size_z 30.
+            -l peptest.pdbqt -r 2j0tA-m1.pdbqt -o test.pdb
+            --num_modes 10
         """
 
         # If out_pdb is not defined use the rec_pdbqt name + .gpf
