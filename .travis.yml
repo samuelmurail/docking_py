@@ -20,6 +20,6 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION mgltools smina vina qvina
-  - conda activate test-environment
+  - conda env create -q -f .conda.yml
+  - conda activate conda_py
   - python setup.py install
