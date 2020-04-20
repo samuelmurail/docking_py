@@ -7,7 +7,6 @@ __author__ = "Samuel Murail"
 
 
 # standard library
-import sys
 import os
 import urllib.request
 
@@ -192,12 +191,11 @@ class Docking:
         if rigid:
             option.append('-Z')
 
-
         cmd_lig = os_command.Command([SMINA_PYTHON, SMINA_LIG,
                                       "-l", self.lig_pdb,
                                       "-B", 'none',
                                       "-A", 'hydrogens',
-                                      "-o", lig_pdbqt]+option)
+                                      "-o", lig_pdbqt] + option)
         cmd_lig.display()
         cmd_lig.run()
 
@@ -214,7 +212,10 @@ class Docking:
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(rec_pdbqt):
-            print("prepare_receptor() not launched", rec_pdbqt, "already exist")
+            print("prepare_receptor() not launched",
+                  rec_pdbqt,
+                  "already exist")
+
             self.rec_pdbqt = rec_pdbqt
             return
 
@@ -279,7 +280,8 @@ class Docking:
         """
         rec_com = pdb_manip.Coor()
         rec_com.read_pdb(self.rec_pdb)
-        self.grid_npts = (np.ceil(rec_com.get_box_dim()) + buffer_space).astype(int)
+        self.grid_npts = (np.ceil(rec_com.get_box_dim())
+                          + buffer_space).astype(int)
         return
 
     def smina_docking(self, out_pdb=None, log=None,
@@ -311,8 +313,13 @@ class Docking:
             self.rec_grid()
             print('pnd_manip', self.grid_npts)
             self.rec_com()
-            option += ["--size_x", str(self.grid_npts[0]), "--size_y", str(self.grid_npts[1]), "--size_z", str(self.grid_npts[2])]
-            option += ["--center_x", str(self.rec_com[0]), "--center_y", str(self.rec_com[1]), "--center_z", str(self.rec_com[2])]
+            option += ["--size_x", str(self.grid_npts[0]),
+                       "--size_y", str(self.grid_npts[1]),
+                       "--size_z", str(self.grid_npts[2])]
+
+            option += ["--center_x", str(self.rec_com[0]),
+                       "--center_y", str(self.rec_com[1]),
+                       "--center_z", str(self.rec_com[2])]
 
         cmd_top = os_command.Command([SMINA_BIN,
                                       "-l", self.lig_pdbqt,
@@ -329,8 +336,9 @@ class Docking:
         self.dock_log = log
         return
 
-    def vina_docking(self, out_pdb=None, log=None, num_modes=100, dock_bin='vina',
-                     energy_range=10, exhaustiveness=16, check_file_out=True, cpu=None):
+    def vina_docking(self, out_pdb=None, log=None, num_modes=100,
+                     dock_bin='vina', energy_range=10, exhaustiveness=16,
+                     check_file_out=True, cpu=None):
         """
         Run docking
         /home/tuffery/Work/prgs/Src/Ext/SMINA/smina.static --center_x 56.35  --center_y -0.27 --center_z 29.72 --size_x 30. --size_y 30. --size_z 30. -l peptest.pdbqt -r 2j0tA-m1.pdbqt -o test.pdb  --num_modes 10
@@ -362,8 +370,14 @@ class Docking:
 
         self.rec_grid()
         self.rec_com()
-        option += ["--size_x", str(self.grid_npts[0]), "--size_y", str(self.grid_npts[1]), "--size_z", str(self.grid_npts[2])]
-        option += ["--center_x", str(self.rec_com[0]), "--center_y", str(self.rec_com[1]), "--center_z", str(self.rec_com[2])]
+        option += ["--size_x", str(self.grid_npts[0]),
+                   "--size_y", str(self.grid_npts[1]),
+                   "--size_z", str(self.grid_npts[2])]
+
+        option += ["--center_x", str(self.rec_com[0]),
+                   "--center_y", str(self.rec_com[1]),
+                   "--center_z", str(self.rec_com[2])]
+
         if cpu is not None:
             option += ["--cpu", str(cpu)]
 
@@ -377,7 +391,6 @@ class Docking:
                                       "--out", out_pdb] + option)
         cmd_top.display()
         cmd_top.run()
-
 
         self.dock_pdb = out_pdb
         self.dock_log = log
@@ -409,12 +422,14 @@ class Docking:
                     continue
                 if mode_read and not line.startswith('Writing'):
                     line_split = line.split()
-                    mode_info_dict[int(line_split[0])] = {'affinity': float(line_split[1]),
-                                                          'rmsd_low': float(line_split[2]),
-                                                          'rmsd_high': float(line_split[3])}
+                    mode_info_dict[int(line_split[0])] = {
+                        'affinity': float(line_split[1]),
+                        'rmsd_low': float(line_split[2]),
+                        'rmsd_high': float(line_split[3])}
         return mode_info_dict
 
-    def extract_pep_rec_pdb(self, pdb_id, rec_chain, lig_chain, random_rot=True):
+    def extract_pep_rec_pdb(self, pdb_id, rec_chain,
+                            lig_chain, random_rot=True):
         """ Get pdb file from the rcsb.org website.
         - Extract receptor and ligand coordinates
         - remove alternative location
@@ -426,38 +441,43 @@ class Docking:
 
         # Get pdb:
         out_pdb = '{}.pdb'.format(pdb_id)
-        urllib.request.urlretrieve('http://files.rcsb.org/download/{}.pdb'.format(pdb_id),
-                                   out_pdb)
+        urllib.request.urlretrieve(
+            'http://files.rcsb.org/download/{}.pdb'.format(pdb_id), out_pdb)
+
         # Treat PDB files:
         comp_coor = pdb_manip.Coor()
         comp_coor.read_pdb('{}.pdb'.format(pdb_id))
         # Keep only amino acid
-        aa_comp_coor = comp_coor.select_part_dict(selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+        aa_comp_coor = comp_coor.select_part_dict(selec_dict={
+            'res_name': pdb_manip.AA_DICT.keys()})
+
         # Remove alter_loc B, C, D
-        alter_loc_bcd = aa_comp_coor.get_index_selection({'alter_loc': ['B', 'C', 'D']})
+        alter_loc_bcd = aa_comp_coor.get_index_selection(
+            {'alter_loc': ['B', 'C', 'D']})
         aa_comp_coor.del_atom_index(index_list=alter_loc_bcd)
         aa_comp_coor.change_pdb_field(change_dict={"alter_loc": ""})
 
         # Extract receptor pdb
         out_rec = '{}_rec.pdb'.format(pdb_id)
-        rec_coor = aa_comp_coor.select_part_dict(selec_dict={'chain': rec_chain})
+        rec_coor = aa_comp_coor.select_part_dict(
+            selec_dict={'chain': rec_chain})
         rec_coor.write_pdb(out_rec)
         self.rec_pdb = out_rec
 
         # Extract ligand pdb
         out_lig = '{}_lig.pdb'.format(pdb_id)
-        lig_coor = aa_comp_coor.select_part_dict(selec_dict={'chain': lig_chain})
+        lig_coor = aa_comp_coor.select_part_dict(
+            selec_dict={'chain': lig_chain})
         lig_coor.write_pdb(out_lig)
         self.start_lig_pdb = out_lig
 
         # Add random rotation
         input_lig = '{}_input_lig.pdb'.format(pdb_id)
         if random_rot:
-            tau_x, tau_y, tau_z = np.random.random_sample((3,))*360
+            tau_x, tau_y, tau_z = np.random.random_sample((3,)) * 360
             lig_coor.rotation_angle(tau_x, tau_y, tau_z)
         lig_coor.write_pdb(input_lig)
         self.lig_pdb = input_lig
-
 
     def extract_align_rec_pdb(self, pdb_id, ref_pdb, rec_chain, ref_chain):
         """ Get pdb file from the rcsb.org website.
@@ -471,38 +491,45 @@ class Docking:
 
         # Get pdb:
         out_pdb = '{}.pdb'.format(pdb_id)
-        urllib.request.urlretrieve('http://files.rcsb.org/download/{}.pdb'.format(pdb_id),
-                                   out_pdb)
+        urllib.request.urlretrieve(
+            'http://files.rcsb.org/download/{}.pdb'.format(pdb_id), out_pdb)
         # Treat PDB files:
         comp_coor = pdb_manip.Coor()
         comp_coor.read_pdb('{}.pdb'.format(pdb_id))
         # Keep only amino acid
-        aa_comp_coor = comp_coor.select_part_dict(selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+        aa_comp_coor = comp_coor.select_part_dict(
+            selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+
         # Remove alter_loc B, C, D
-        alter_loc_bcd = aa_comp_coor.get_index_selection({'alter_loc': ['B', 'C', 'D']})
+        alter_loc_bcd = aa_comp_coor.get_index_selection(
+            {'alter_loc': ['B', 'C', 'D']})
         aa_comp_coor.del_atom_index(index_list=alter_loc_bcd)
         aa_comp_coor.change_pdb_field(change_dict={"alter_loc": ""})
 
         # Extract receptor pdb
-        rec_coor = aa_comp_coor.select_part_dict(selec_dict={'chain': rec_chain})
+        rec_coor = aa_comp_coor.select_part_dict(
+            selec_dict={'chain': rec_chain})
 
         # Read ref_pdb
         ref_coor = pdb_manip.Coor()
         ref_coor.read_pdb(ref_pdb)
         # Keep only amino acid
-        aa_ref_coor = ref_coor.select_part_dict(selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+        aa_ref_coor = ref_coor.select_part_dict(
+            selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         # Remove alter_loc B, C, D
-        alter_loc_bcd = aa_ref_coor.get_index_selection({'alter_loc': ['B', 'C', 'D']})
+        alter_loc_bcd = aa_ref_coor.get_index_selection(
+            {'alter_loc': ['B', 'C', 'D']})
         aa_ref_coor.del_atom_index(index_list=alter_loc_bcd)
 
-        rec_coor.align_seq_coor_to(aa_ref_coor, chain_1=rec_chain, chain_2=ref_chain)
+        rec_coor.align_seq_coor_to(
+            aa_ref_coor, chain_1=rec_chain, chain_2=ref_chain)
+
         out_rec = '{}_rec.pdb'.format(pdb_id)
         rec_coor.write_pdb(out_rec)
 
         self.rec_pdb = out_rec
 
         return
-
 
     def extract_peplig_pdb(self, pdb_id, lig_chain, random_rot=True):
         """ Get pdb file from the rcsb.org website.
@@ -515,21 +542,27 @@ class Docking:
 
         # Get pdb:
         out_pdb = '{}.pdb'.format(pdb_id)
-        urllib.request.urlretrieve('http://files.rcsb.org/download/{}.pdb'.format(pdb_id),
-                                   out_pdb)
+        urllib.request.urlretrieve(
+            'http://files.rcsb.org/download/{}.pdb'.format(pdb_id), out_pdb)
         # Treat PDB files:
         comp_coor = pdb_manip.Coor()
         comp_coor.read_pdb('{}.pdb'.format(pdb_id))
         # Keep only amino acid
-        aa_comp_coor = comp_coor.select_part_dict(selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+        aa_comp_coor = comp_coor.select_part_dict(
+            selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+
         # Remove alter_loc B, C, D
-        alter_loc_bcd = aa_comp_coor.get_index_selection({'alter_loc': ['B', 'C', 'D']})
+        alter_loc_bcd = aa_comp_coor.get_index_selection(
+            {'alter_loc': ['B', 'C', 'D']})
+
         aa_comp_coor.del_atom_index(index_list=alter_loc_bcd)
         aa_comp_coor.change_pdb_field(change_dict={"alter_loc": ""})
 
         # Extract ligand pdb
         out_lig = '{}_lig.pdb'.format(pdb_id)
-        lig_coor = aa_comp_coor.select_part_dict(selec_dict={'chain': lig_chain})
+        lig_coor = aa_comp_coor.select_part_dict(
+            selec_dict={'chain': lig_chain})
+
         lig_coor.write_pdb(out_lig)
         self.start_lig_pdb = out_lig
 

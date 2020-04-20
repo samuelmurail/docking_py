@@ -31,9 +31,9 @@ install:
   - git clone --depth 1 git://github.com/astropy/ci-helpers.git
   - source ci-helpers/travis/setup_conda.sh
   # Install gromacs_py
-  - pip install -r requirements.txt
-  - pip install tox-travis
-
+  #- pip install -r requirements.txt
+  #- pip install tox-travis
+  - ./setup.py install
 # Command to run tests, e.g. python setup.py test
 script: tox
 

@@ -10,7 +10,6 @@ dependencies:
   - smina
   - vina
   - qvina
-  - pip
   - pip:
     - gromacs_py
 
