@@ -20,7 +20,8 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda env create -q -f .conda.yml python=$TRAVIS_PYTHON_VERSION
+  - conda env create -n conda_py python=$TRAVIS_PYTHON_VERSION
+  - conda update -n conda_py -f .conda.yml 
   - conda activate conda_py
   - python setup.py install
 
