@@ -1,8 +1,11 @@
-language: python
+language: generic
 
 # Doesn't matter, tox will test py35, py36, py37 and py38
 python:
-  - "3.7"
+  - "3.8"
+
+env:
+  - PYTHON_VERSION="3.7"
 
 matrix:
     include:
@@ -28,7 +31,8 @@ install:
   # Need to update pip, setuptools and wheel only for python3.5
   - pip install -U pip setuptools wheel 
   # Install tox-travis to use tox in travis
-  - pip install tox-travis tox-conda
+  # - pip install tox-travis tox-conda
+  - pip install tox-conda
   - pip install -r requirements.txt
 
 script:
