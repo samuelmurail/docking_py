@@ -41,12 +41,14 @@ else:
     print("Smina ligand script is {}".format(SMINA_LIG))
     SMINA_REC = os_command.which('prepare_receptor4.py')
     print("Smina receptor script is {}".format(SMINA_REC))
+
+    CONDA_PREFIX = os.getenv('CONDA_PREFIX')
     # Find a way to fix this !!
-    SMINA_GPF = '/Users/smurail/anaconda3/envs/smina_py/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py'
+    SMINA_GPF = os.path.join(CONDA_PREFIX, 'MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py')
     print("Smina grid script is {}".format(SMINA_GPF))
 
     # Find python 2 from conda env
-    SMINA_PYTHON = os_command.which('python2.5')
+    SMINA_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.5')
     print("Python Smina is {}".format(SMINA_PYTHON))
 
     SMINA_BIN = os_command.which('smina')
