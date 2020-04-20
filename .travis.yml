@@ -1,10 +1,13 @@
 language: python
+
+# Doesn't matter, tox will test py35, py36, py37 and py38
 python:
-  # We don't actually use the Travis Python, but this keeps it organized.
-  - "3.5"
-  - "3.6"
   - "3.7"
-  - "3.8"
+
+matrix:
+    include:
+        - os: linux
+        - os: osx
 
 install:
   - sudo apt-get update
