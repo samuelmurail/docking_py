@@ -18,6 +18,7 @@ install:
   - conda info -a
   - conda config --add channels conda-forge
   - conda config --add channels bioconda
+  - conda config --add channels acellera
   - conda create -q --name docking python=$TRAVIS_PYTHON_VERSION mgltools smina vina qvina
   - conda activate docking
   - pip install -U pip setuptools wheel
