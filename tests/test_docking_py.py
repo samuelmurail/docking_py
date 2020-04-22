@@ -3,6 +3,7 @@
 """Tests for `docking_py` package."""
 
 import pytest
+import doctest
 
 
 from docking_py import docking_py
@@ -22,3 +23,6 @@ def test_content(response):
     """Sample pytest test function with the pytest fixture as an argument."""
     # from bs4 import BeautifulSoup
     # assert 'GitHub' in BeautifulSoup(response.content).title.string
+
+
+print("docking_py:    \t", doctest.testmod(docking_py))

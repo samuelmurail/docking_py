@@ -13,7 +13,6 @@ Docking Python
         :target: https://docking-py.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-
 .. image:: https://pyup.io/repos/github/samuelmurail/docking_py/shield.svg
      :target: https://pyup.io/repos/github/samuelmurail/docking_py/
      :alt: Updates
@@ -30,7 +29,12 @@ Docking_py is a python library allowing a simplified use of the Smina, vina, qvi
 Features
 --------
 
-* TODO
+* Prepare receptors and ligands.
+* Launch docking using:
+    * vina
+    * smina
+    * qvina2
+    * qvinaw
 
 Credits
 -------
