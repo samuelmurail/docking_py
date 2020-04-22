@@ -33,7 +33,7 @@ else:
     # With tox CONDA_PREFIX is None
     if CONDA_PREFIX is None:
         CONDA_PREFIX = '/'.join(SMINA_REC.split('/')[:-2])
-    
+
     # Find a way to fix this !!
     SMINA_GPF = os.path.join(
         CONDA_PREFIX,
@@ -187,7 +187,8 @@ class Docking:
         :param name: generic name of the system
         :type name: str, optional, default=None
 
-        :param check_file_out: flag to check or not if file has already been created.
+        :param check_file_out: flag to check or not if file has already\
+         been created.
             If the file is present then the command break.
         :type check_file_out: bool, optional, default=True
 
@@ -243,7 +244,8 @@ class Docking:
         :param rec_pdbqt: output name
         :type rec_pdbqt: str, optional, default=None
 
-        :param check_file_out: flag to check or not if file has already been created.
+        :param check_file_out: flag to check or not if file has already been\
+         created.
             If the file is present then the command break.
         :type check_file_out: bool, optional, default=True
 
