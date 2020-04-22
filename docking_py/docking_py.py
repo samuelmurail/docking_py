@@ -3,8 +3,6 @@
 """ Include the Docking class
 """
 
-__author__ = "Samuel Murail"
-
 
 # standard library
 import os
@@ -14,17 +12,6 @@ import urllib.request
 import numpy as np
 from os_command_py import os_command
 from pdb_manip_py import pdb_manip
-
-
-# Autorship information
-__author__ = "Samuel Murail, Damien Espana, Pierre Tuffery"
-__copyright__ = "Copyright 2020, RPBS"
-__credits__ = ["Damien Espana", "Pierre Tuffery", "Samuel Murail"]
-__license__ = "GNU General Public License v2.0"
-__version__ = "1.0.1"
-__maintainer__ = "Samuel Murail"
-__email__ = "samuel.murail@u-paris.fr"
-__status__ = "Prototype"
 
 
 # Get Path of excecutables
