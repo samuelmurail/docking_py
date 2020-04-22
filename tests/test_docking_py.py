@@ -109,10 +109,11 @@ def test_smina_rigid(tmp_path, capsys):
 
     # Launch Docking
     out_dock = os.path.join(TEST_OUT, '{}_dock.pdb'.format('test'))
-    test_dock.smina_docking(out_dock,
-                            num_modes=10,
-                            energy_range=1,
-                            exhaustiveness=2)
+    test_dock.run_docking(out_dock,
+                          num_modes=10,
+                          energy_range=1,
+                          exhaustiveness=2,
+                          dock_bin='smina')
 
     captured = capsys.readouterr()
     capture_line = captured.out.split('\n')
@@ -124,9 +125,10 @@ def test_smina_rigid(tmp_path, capsys):
         "Succeed to read file .+rec.pdb ,  1514 atoms found",
         capture_line[2]))
     assert bool(re.match(
-        ("smina -l .+lig.pdbqt -r .+rec.pdbqt --log .+test_dock_log.txt"
-         " --num_modes 10 --exhaustiveness 2 --energy_range 1 -o "
-         ".+test_dock.pdb --size_x 66.00 --size_y 81.00 --size_z 83.00"
+        ("smina --ligand .+lig.pdbqt --receptor .+rec.pdbqt --log "
+         ".+test_dock_log.txt --num_modes 10 --exhaustiveness 2"
+         " --energy_range 1 --out .+test_dock.pdb "
+         "--size_x 66.00 --size_y 81.00 --size_z 83.00"
          " --center_x 16.07 --center_y 26.49 --center_z 3.77"),
         capture_line[3]))
 
