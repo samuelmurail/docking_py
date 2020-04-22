@@ -375,19 +375,19 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
 
         option = []
         if autobox:
-            # option += ['--autobox_ligand', self.lig_pdbqt]
+            option += ['--autobox_ligand', self.lig_pdbqt]
             option += ['--autobox_add', str(10.0)]
         else:
             self.rec_grid()
-            print('pnd_manip', self.grid_npts)
+            print('Grid points:', self.grid_npts)
             self.rec_com()
-            option += ["--size_x", str(self.grid_npts[0]),
-                       "--size_y", str(self.grid_npts[1]),
-                       "--size_z", str(self.grid_npts[2])]
+            option += ["--size_x", '{:.2f}'.format(self.grid_npts[0]),
+                       "--size_y", '{:.2f}'.format(self.grid_npts[1]),
+                       "--size_z", '{:.2f}'.format(self.grid_npts[2])]
 
-            option += ["--center_x", str(self.rec_com[0]),
-                       "--center_y", str(self.rec_com[1]),
-                       "--center_z", str(self.rec_com[2])]
+            option += ["--center_x", '{:.2f}'.format(self.rec_com[0]),
+                       "--center_y", '{:.2f}'.format(self.rec_com[1]),
+                       "--center_z", '{:.2f}'.format(self.rec_com[2])]
 
         cmd_top = os_command.Command([SMINA_BIN,
                                       "-l", self.lig_pdbqt,
@@ -442,13 +442,13 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
 
         self.rec_grid()
         self.rec_com()
-        option += ["--size_x", str(self.grid_npts[0]),
-                   "--size_y", str(self.grid_npts[1]),
-                   "--size_z", str(self.grid_npts[2])]
+        option += ["--size_x", '{:.2f}'.format(self.grid_npts[0]),
+                   "--size_y", '{:.2f}'.format(self.grid_npts[1]),
+                   "--size_z", '{:.2f}'.format(self.grid_npts[2])]
 
-        option += ["--center_x", str(self.rec_com[0]),
-                   "--center_y", str(self.rec_com[1]),
-                   "--center_z", str(self.rec_com[2])]
+        option += ["--center_x", '{:.2f}'.format(self.rec_com[0]),
+                   "--center_y", '{:.2f}'.format(self.rec_com[1]),
+                   "--center_z", '{:.2f}'.format(self.rec_com[2])]
 
         if cpu is not None:
             option += ["--cpu", str(cpu)]
@@ -468,16 +468,16 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         self.dock_log = log
         return
 
-    def compute_dock_rmsd(self, selec_dict=None):
+    def compute_dock_rmsd(self, ref_lig_pdb, selec_dict={}):
 
         cryst_coor = pdb_manip.Coor()
-        cryst_coor.read_pdb(self.start_lig_pdb)
+        cryst_coor.read_pdb(ref_lig_pdb)
 
         dock_coor = pdb_manip.Multi_Coor()
         dock_coor.read_pdb(self.dock_pdb)
         dock_coor.write_pdb(self.dock_pdb[:-4] + '_vmd.pdb')
 
-        rmsd = dock_coor.compute_rmsd_to(cryst_coor)
+        rmsd = dock_coor.compute_rmsd_to(cryst_coor, selec_dict=selec_dict)
 
         return rmsd
 
