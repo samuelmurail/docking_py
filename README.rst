@@ -23,7 +23,7 @@ Docking Python
 Docking_py is a python library allowing a simplified use of the Smina, vina, qvina2 and qvinaw docking software. Docking_py can be easily automatize and scripted.
 
 
-* Free software: GNU General Public License v3
+* Free software: GNU General Public License v2 (GPLv2)
 * Documentation: https://docking-py.readthedocs.io.
 
 
