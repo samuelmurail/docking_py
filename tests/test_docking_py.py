@@ -5,7 +5,6 @@
 import pytest
 import doctest
 
-
 from docking_py import docking_py
 
 
