@@ -35,7 +35,8 @@ def test_smina_rigid(tmp_path, capsys):
 
     from pdb_manip_py import pdb_manip
 
-    TEST_OUT = tmp_path
+    # Convert to str to avoid problem with python 3.5
+    TEST_OUT = str(tmp_path)
 
     # Read 1hsg.pdb, extract lig.pdb and rec.pdb
     coor_1hsg = pdb_manip.Coor()
