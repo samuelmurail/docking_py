@@ -30,7 +30,7 @@ install:
   - conda info -a
   - conda config --add channels conda-forge
   - conda config --add channels bioconda
-  - conda config --add channels acellera
+  # - conda config --add channels acellera
   - conda create -q --name docking python=$PYTHON_VERSION smina autodock-vina qvina mgltools=1.5.6
   - conda activate docking
   # Need to update pip, setuptools and wheel only for python3.5
