@@ -62,15 +62,24 @@ else:
     # import glob
     # glob.glob('/etc/r*.conf')
 
+# Test folder path
+LIB_DIR = os.path.dirname(os.path.abspath(__file__))
+TEST_PATH = os.path.join(LIB_DIR, "../tests/input/")
+
 
 class Docking:
     """ The Docking class ...
     """
 
-    def __init__(self, name, lig_pdb=None, rec_pdb=None):
+    def __init__(self, name, lig_pdb=None, rec_pdb=None,
+                 lig_pdbqt=None, rec_pdbqt=None):
         self.name = name
         self.lig_pdb = lig_pdb
         self.rec_pdb = rec_pdb
+        self.lig_pdb = lig_pdb
+        self.rec_pdb = rec_pdb
+        self.dock_pdb = None
+        self.dock_log = None
 
     # @property is used to get the realtive path of this variables:
     # Usefull to print command in a shorter way
@@ -169,7 +178,27 @@ class Docking:
 
     def prepare_ligand(self, lig_pdbqt=None, rigid=False,
                        check_file_out=True):
-        """ Ligand preparation
+        """ Ligand preparation to `pdbqt` format using the `prepare_ligand4.py`
+        command.
+
+        :Example:
+
+        >>> TEST_OUT = getfixture('tmpdir')
+        >>> coor_1hsg = pdb_manip.Coor()
+        >>> coor_1hsg.read_pdb(os.path.join(TEST_PATH, '1hsg.pdb'))
+        Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
+        >>> lig_coor = coor_1hsg.select_part_dict(\
+            selec_dict={'res_name': 'MK1'})
+        >>> out_lig = os.path.join(TEST_OUT,'lig.pdb')
+        >>> lig_coor.write_pdb(out_lig) #doctest: +ELLIPSIS
+        Succeed to save file .../lig.pdb
+        >>> test_dock = Docking('test', lig_pdb=out_lig)
+        >>> test_dock.prepare_ligand() #doctest: +ELLIPSIS
+        python2.5 .../prepare_ligand4.py -l .../lig.pdb -B none -A\
+ hydrogens -o .../lig.pdbqt
+        >>> coor_lig = pdb_manip.Coor()
+        >>> coor_lig.read_pdb(test_dock.lig_pdbqt) #doctest: +ELLIPSIS
+        Succeed to read file .../lig.pdbqt ,  50 atoms found
         """
 
         # If lig_pdbqt is not defined use the lig_pdb name + .pdbqt
@@ -275,8 +304,8 @@ class Docking:
         """
         rec_com = pdb_manip.Coor()
         rec_com.read_pdb(self.rec_pdb)
-        self.grid_npts = (np.ceil(rec_com.get_box_dim())
-                          + buffer_space).astype(int)
+        self.grid_npts = (np.ceil(rec_com.get_box_dim()) +
+                          buffer_space).astype(int)
         return
 
     def smina_docking(self, out_pdb=None, log=None,
