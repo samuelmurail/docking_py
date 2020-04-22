@@ -227,7 +227,28 @@ class Docking:
         return
 
     def prepare_receptor(self, rec_pdbqt=None, check_file_out=True):
-        """ Receptor preparation
+        """ Receptor preparation to `pdbqt` format using the `prepare_receptor4.py`
+        command.
+
+        :Example:
+
+        >>> TEST_OUT = getfixture('tmpdir')
+        >>> coor_1hsg = pdb_manip.Coor()
+        >>> coor_1hsg.read_pdb(os.path.join(TEST_PATH, '1hsg.pdb'))
+        Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
+        >>> # Keep only amino acid
+        >>> rec_coor = coor_1hsg.select_part_dict(\
+selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+        >>> out_rec = os.path.join(TEST_OUT,'rec.pdb')
+        >>> rec_coor.write_pdb(out_rec) #doctest: +ELLIPSIS
+        Succeed to save file .../rec.pdb
+        >>> test_dock = Docking('test', rec_pdb=out_rec)
+        >>> test_dock.prepare_receptor() #doctest: +ELLIPSIS
+        python2.5 .../prepare_receptor4.py -r .../rec.pdb -A checkhydrogens\
+ -o .../rec.pdbqt
+        >>> coor_rec = pdb_manip.Coor()
+        >>> coor_rec.read_pdb(test_dock.rec_pdbqt) #doctest: +ELLIPSIS
+        Succeed to read file .../rec.pdbqt ,  1844 atoms found
         """
 
         # If lig_pdbqt is not defined use the lig_pdb name + .pdbqt
