@@ -181,9 +181,19 @@ class Docking:
         """ Ligand preparation to `pdbqt` format using the `prepare_ligand4.py`
         command.
 
+        :param lig_pdbqt: output name
+        :type lig_pdbqt: str, optional, default=None
+
+        :param name: generic name of the system
+        :type name: str, optional, default=None
+
+        :param check_file_out: flag to check or not if file has already been created.
+            If the file is present then the command break.
+        :type check_file_out: bool, optional, default=True
+
         :Example:
 
-        >>> TEST_OUT = getfixture('tmpdir')
+        >>> TEST_OUT = str(getfixture('tmpdir'))
         >>> coor_1hsg = pdb_manip.Coor()
         >>> coor_1hsg.read_pdb(os.path.join(TEST_PATH, '1hsg.pdb'))
         Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
@@ -230,9 +240,16 @@ class Docking:
         """ Receptor preparation to `pdbqt` format using the `prepare_receptor4.py`
         command.
 
+        :param rec_pdbqt: output name
+        :type rec_pdbqt: str, optional, default=None
+
+        :param check_file_out: flag to check or not if file has already been created.
+            If the file is present then the command break.
+        :type check_file_out: bool, optional, default=True
+
         :Example:
 
-        >>> TEST_OUT = getfixture('tmpdir')
+        >>> TEST_OUT = str(getfixture('tmpdir'))
         >>> coor_1hsg = pdb_manip.Coor()
         >>> coor_1hsg.read_pdb(os.path.join(TEST_PATH, '1hsg.pdb'))
         Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
