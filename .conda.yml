@@ -4,8 +4,7 @@ channels:
   - bioconda
   - acellera
 dependencies:
-  - gromacs 
-  - mgltools
+  - mgltools=1.5.6
   - smina
-  - vina
+  - autodock-vina
   - qvina

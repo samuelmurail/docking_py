@@ -5,7 +5,7 @@ python:
   - "3.8"
 
 env:
-  - PYTHON_VERSION="3.7"
+  - PYTHON_VERSION="3.8"
 
 matrix:
     include:
@@ -31,7 +31,7 @@ install:
   - conda config --add channels conda-forge
   - conda config --add channels bioconda
   - conda config --add channels acellera
-  - conda create -q --name docking python=$PYTHON_VERSION mgltools smina vina qvina
+  - conda create -q --name docking python=$PYTHON_VERSION smina autodock-vina qvina mgltools=1.5.6
   - conda activate docking
   # Need to update pip, setuptools and wheel only for python3.5
   - pip install -U pip setuptools wheel 

@@ -33,7 +33,7 @@ else:
     # With tox CONDA_PREFIX is None
     if CONDA_PREFIX is None:
         CONDA_PREFIX = '/'.join(SMINA_REC.split('/')[:-2])
-
+    
     # Find a way to fix this !!
     SMINA_GPF = os.path.join(
         CONDA_PREFIX,
@@ -226,7 +226,7 @@ class Docking:
             option.append('-Z')
 
         cmd_lig = os_command.Command([SMINA_PYTHON, SMINA_LIG,
-                                      "-l", self.lig_pdb,
+                                      "-l", self._lig_pdb,
                                       "-B", 'none',
                                       "-A", 'hydrogens',
                                       "-o", lig_pdbqt] + option)
