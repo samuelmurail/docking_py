@@ -348,65 +348,10 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
                           buffer_space).astype(int)
         return
 
-    def smina_docking(self, out_pdb=None, log=None,
-                      num_modes=100, energy_range=10,
-                      exhaustiveness=16, autobox=False, check_file_out=True):
-        """
-        Run docking
-        /home/tuffery/Work/prgs/Src/Ext/SMINA/smina.static
-            --center_x 56.35  --center_y -0.27 --center_z 29.72
-            --size_x 30. --size_y 30. --size_z 30.
-            -l peptest.pdbqt -r 2j0tA-m1.pdbqt -o test.pdb
-            --num_modes 10
-        """
-
-        # If out_pdb is not defined use the rec_pdbqt name + .gpf
-        if out_pdb is None:
-            out_pdb = self.name + '_dock.pdb'
-        if log is None:
-            log = out_pdb[:-4] + '_log.txt'
-
-        # Check if output files exist:
-        if check_file_out and os_command.check_file_and_create_path(out_pdb):
-            print("smina_docking() not launched", out_pdb, "already exist")
-            self.dock_pdb = out_pdb
-            self.dock_log = log
-            return
-
-        option = []
-        if autobox:
-            option += ['--autobox_ligand', self.lig_pdbqt]
-            option += ['--autobox_add', str(10.0)]
-        else:
-            self.rec_grid()
-            print('Grid points:', self.grid_npts)
-            self.rec_com()
-            option += ["--size_x", '{:.2f}'.format(self.grid_npts[0]),
-                       "--size_y", '{:.2f}'.format(self.grid_npts[1]),
-                       "--size_z", '{:.2f}'.format(self.grid_npts[2])]
-
-            option += ["--center_x", '{:.2f}'.format(self.rec_com[0]),
-                       "--center_y", '{:.2f}'.format(self.rec_com[1]),
-                       "--center_z", '{:.2f}'.format(self.rec_com[2])]
-
-        cmd_top = os_command.Command([SMINA_BIN,
-                                      "-l", self.lig_pdbqt,
-                                      "-r", self.rec_pdbqt,
-                                      "--log", log,
-                                      "--num_modes", str(num_modes),
-                                      "--exhaustiveness", str(exhaustiveness),
-                                      "--energy_range", str(energy_range),
-                                      "-o", out_pdb] + option)
-        cmd_top.display()
-        cmd_top.run()
-
-        self.dock_pdb = out_pdb
-        self.dock_log = log
-        return
-
-    def vina_docking(self, out_pdb=None, log=None, num_modes=100,
-                     dock_bin='vina', energy_range=10, exhaustiveness=16,
-                     check_file_out=True, cpu=None):
+    def run_docking(self, out_pdb=None, log=None, num_modes=100,
+                    dock_bin='vina', energy_range=10, exhaustiveness=16,
+                    check_file_out=True, cpu=None, autobox=False,
+                    center=None, grid_npts=None):
         """
         Run docking
         /home/tuffery/Work/prgs/Src/Ext/SMINA/smina.static
@@ -428,8 +373,12 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
             DOCK_BIN = QVINA_BIN
         elif dock_bin == 'qvinaw':
             DOCK_BIN = QVINAW_BIN
-        else:
+        elif dock_bin == 'smina':
             DOCK_BIN = SMINA_BIN
+        else:
+            print('Choose an appropriate docking software among:\n'
+                  '- vina\n- qvina\n- qvinaw\n- smina\n')
+            return
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(out_pdb):
@@ -439,17 +388,34 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
             return
 
         option = []
+        if autobox:
+            if dock_bin != 'smina':
+                print('autobox option is only available with smina')
+                return
 
-        self.rec_grid()
-        self.rec_com()
+            option += ['--autobox_ligand', self.lig_pdbqt]
+            option += ['--autobox_add', str(10.0)]
+
+        # Define grid size:
+        if grid_npts is None:
+            self.rec_grid()
+            print('Grid points:', self.grid_npts)
+        else:
+            self.grid_npts = np.array(grid_npts, type=np.int)
         option += ["--size_x", '{:.2f}'.format(self.grid_npts[0]),
                    "--size_y", '{:.2f}'.format(self.grid_npts[1]),
                    "--size_z", '{:.2f}'.format(self.grid_npts[2])]
 
+        # Define grid center:
+        if center is None:
+            self.rec_com()
+        else:
+            self.rec_com = center
         option += ["--center_x", '{:.2f}'.format(self.rec_com[0]),
                    "--center_y", '{:.2f}'.format(self.rec_com[1]),
                    "--center_z", '{:.2f}'.format(self.rec_com[2])]
 
+        # Define cpu number:
         if cpu is not None:
             option += ["--cpu", str(cpu)]
 
