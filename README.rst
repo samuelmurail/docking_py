@@ -3,9 +3,6 @@ Docking Python
 ==============
 
 
-.. image:: https://img.shields.io/pypi/v/docking_py.svg
-        :target: https://pypi.python.org/pypi/docking_py
-
 .. image:: https://travis-ci.org/samuelmurail/docking_py.svg?branch=master
     :target: https://travis-ci.org/samuelmurail/docking_py
 
