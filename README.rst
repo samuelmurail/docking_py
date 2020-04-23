@@ -13,6 +13,10 @@ Docking Python
         :target: https://docking-py.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
+.. image:: https://codecov.io/gh/samuelmurail/docking_py/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/samuelmurail/docking_py
+
+
 
 Docking_py is a python library allowing a simplified use of the Smina, vina, qvina2 and qvinaw docking software. Docking_py can be easily automatize and scripted.
 
