@@ -76,8 +76,8 @@ class Docking:
         self.name = name
         self.lig_pdb = lig_pdb
         self.rec_pdb = rec_pdb
-        self.lig_pdb = lig_pdb
-        self.rec_pdb = rec_pdb
+        self.lig_pdbqt = lig_pdbqt
+        self.rec_pdbqt = rec_pdbqt
         self.dock_pdb = None
         self.dock_log = None
 
