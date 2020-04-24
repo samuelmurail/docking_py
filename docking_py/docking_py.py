@@ -396,7 +396,7 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
             self.rec_grid()
             print('Grid points:', self.grid_npts)
         else:
-            self.grid_npts = np.array(grid_npts, type=np.int)
+            self.grid_npts = np.array(grid_npts).astype(int)
         option += ["--size_x", '{:.2f}'.format(self.grid_npts[0]),
                    "--size_y", '{:.2f}'.format(self.grid_npts[1]),
                    "--size_z", '{:.2f}'.format(self.grid_npts[2])]
