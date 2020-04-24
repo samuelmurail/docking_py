@@ -4,27 +4,31 @@
 Installation
 ============
 
+1. Create Conda Environment
+---------------------------
 
-Stable release
---------------
+You need to create a conda environment to be able to use:
 
-To install Docking Python, run this command in your terminal:
+* vina
+* smina
+* qvina2 and qvinaw
+* MGLTools for `prepare_ligand4.py` and `prepare_receptor4.py`
+
+Use `conda en create` to create it using the `.conda.yml` file. You can overide the environmnent name using the option `--name YOUR_NAME`.
 
 .. code-block:: console
 
-    $ pip install docking_py
+    $ conda env create -f .conda.yml
 
-This is the preferred method to install Docking Python, as it will always install the most recent stable release.
+This will create an environmnet called `docking`. You will then, need to activate the environmnent:
 
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
+.. code-block:: console
 
-.. _pip: https://pip.pypa.io
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
+    $ conda activate docking
 
 
-From sources
-------------
+2. Install docking_py
+---------------------
 
 The sources for Docking Python can be downloaded from the `Github repo`_.
 

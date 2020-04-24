@@ -244,9 +244,8 @@ class Docking:
         :param rec_pdbqt: output name
         :type rec_pdbqt: str, optional, default=None
 
-        :param check_file_out: flag to check or not if file has already been\
-         created.
-            If the file is present then the command break.
+        :param check_file_out: flag to check or not if file has already been
+            created. If the file is present then the command break.
         :type check_file_out: bool, optional, default=True
 
         :Example:
@@ -354,11 +353,7 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
                     center=None, grid_npts=None):
         """
         Run docking
-        /home/tuffery/Work/prgs/Src/Ext/SMINA/smina.static
-            --center_x 56.35  --center_y -0.27 --center_z 29.72
-            --size_x 30. --size_y 30. --size_z 30.
-            -l peptest.pdbqt -r 2j0tA-m1.pdbqt -o test.pdb
-            --num_modes 10
+
         """
 
         # If out_pdb is not defined use the rec_pdbqt name + .gpf
@@ -469,12 +464,14 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
     def extract_pep_rec_pdb(self, pdb_id, rec_chain,
                             lig_chain, random_rot=True):
         """ Get pdb file from the rcsb.org website.
-        - Extract receptor and ligand coordinates
-        - remove alternative location
-        - Keep only amino acid residues
-        - Save both coordinates and add it in the object
-            - self.rec_pdb
-            - self.lig_pdb
+
+        * Extract receptor and ligand coordinates
+        * remove alternative location
+        * Keep only amino acid residues
+        * Save both coordinates and add it in the object
+
+            * self.rec_pdb
+            * self.lig_pdb
         """
 
         # Get pdb:
@@ -519,12 +516,14 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
 
     def extract_align_rec_pdb(self, pdb_id, ref_pdb, rec_chain, ref_chain):
         """ Get pdb file from the rcsb.org website.
-        - Extract receptor coordinates
-        - remove alternative location
-        - Keep only amino acid residues
-        - align structure on ref
-        - Save coordinates and add it in the object
-            - self.rec_pdb
+
+        * Extract receptor coordinates
+        * remove alternative location
+        * Keep only amino acid residues
+        * align structure on ref
+        * Save coordinates and add it in the object
+
+            * self.rec_pdb
         """
 
         # Get pdb:
@@ -571,11 +570,13 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
 
     def extract_peplig_pdb(self, pdb_id, lig_chain, random_rot=True):
         """ Get pdb file from the rcsb.org website.
-        - Extract peptide ligand coordinates
-        - remove alternative location
-        - Keep only amino acid residues
-        - Save coordinates and add it in the object
-            - self.lig_pdb
+
+        * Extract peptide ligand coordinates
+        * remove alternative location
+        * Keep only amino acid residues
+        * Save coordinates and add it in the object
+
+            * self.lig_pdb
         """
 
         # Get pdb:
