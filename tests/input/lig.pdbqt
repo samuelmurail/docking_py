@@ -1,0 +1,71 @@
+REMARK  0 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK       I    between atoms: N1_1  and  C31_43 
+REMARK       I    between atoms: C2_3  and  C3_4 
+REMARK       I    between atoms: C3_4  and  N2_6 
+REMARK       I    between atoms: N2_6  and  C4_8 
+REMARK       I    between atoms: N3_12  and  C10_15 
+REMARK       I    between atoms: C10_15  and  C11_16 
+REMARK       I    between atoms: C11_16  and  O2_17 
+REMARK       I    between atoms: C11_16  and  C12_19 
+REMARK       I    between atoms: C12_19  and  C13_20 
+REMARK       I    between atoms: C13_20  and  C21_28 
+REMARK       I    between atoms: C13_20  and  C14_21 
+REMARK       I    between atoms: C14_21  and  C15_22 
+REMARK       I    between atoms: C21_28  and  N4_30 
+REMARK       I    between atoms: N4_30  and  C22_32 
+REMARK       I    between atoms: C23_33  and  O4_34 
+REMARK       I    between atoms: C31_43  and  C32_44 
+ROOT
+HETATM    1  N1  MK1 B 902       9.280  23.763   3.004  1.00 28.25     0.096 N 
+HETATM    2  C1  MK1 B 902       9.498  23.983   4.459  1.00 30.30     0.307 C 
+HETATM    3  C2  MK1 B 902      10.591  24.905   4.962  1.00 27.27     0.200 C 
+HETATM    4  C3  MK1 B 902      10.591  24.864   6.466  1.00 28.85     0.242 C 
+HETATM    5  O1  MK1 B 902      10.937  23.849   7.057  1.00 29.59    -0.271 OA
+HETATM    6  N2  MK1 B 902      10.193  25.953   7.094  1.00 22.29    -0.351 N 
+ATOM      7  H2  MK1 B 902       9.867  26.704   6.485  1.00  0.00     0.163 HD
+HETATM    8  C4  MK1 B 902      10.145  26.250   8.490  1.00 23.47     0.022 C 
+HETATM    9  C5  MK1 B 902       9.379  27.577   8.641  1.00 27.66     0.037 C 
+HETATM   10  C6  MK1 B 902      11.398  26.347   9.074  1.00 21.71     0.037 C 
+HETATM   11  C7  MK1 B 902       9.364  25.283   9.268  1.00 22.75     0.037 C 
+HETATM   12  N3  MK1 B 902      11.819  24.282   4.355  1.00 28.91    -0.395 N 
+HETATM   13  C8  MK1 B 902      11.753  23.776   2.961  1.00 26.24     0.148 C 
+HETATM   14  C9  MK1 B 902      10.440  23.182   2.493  1.00 27.47     0.292 C 
+HETATM   15  C10 MK1 B 902      13.083  24.963   4.552  1.00 20.86     0.149 C 
+HETATM   16  C11 MK1 B 902      14.203  24.064   5.078  1.00 21.68     0.136 C 
+HETATM   17  O2  MK1 B 902      15.242  24.884   4.634  1.00 15.87    -0.394 OA
+ATOM     18  H2  MK1 B 902      15.096  25.071   3.714  1.00  0.00     0.210 HD
+HETATM   19  C12 MK1 B 902      14.440  23.761   6.569  1.00 21.49     0.047 C 
+HETATM   20  C13 MK1 B 902      15.573  22.821   7.005  1.00 26.89     0.084 C 
+HETATM   21  C14 MK1 B 902      15.644  22.664   8.534  1.00 28.67     0.052 C 
+HETATM   22  C15 MK1 B 902      16.733  21.750   8.961  1.00 26.89    -0.057 A 
+HETATM   23  C16 MK1 B 902      18.058  21.916   8.553  1.00 29.22     0.007 A 
+HETATM   24  C17 MK1 B 902      19.037  21.016   8.947  1.00 29.22     0.001 A 
+HETATM   25  C18 MK1 B 902      18.673  19.939   9.758  1.00 30.97     0.000 A 
+HETATM   26  C19 MK1 B 902      17.347  19.773  10.176  1.00 29.25     0.001 A 
+HETATM   27  C20 MK1 B 902      16.374  20.687   9.772  1.00 29.96     0.007 A 
+HETATM   28  C21 MK1 B 902      15.447  21.440   6.373  1.00 29.35     0.222 C 
+HETATM   29  O3  MK1 B 902      14.367  20.831   6.397  1.00 32.66    -0.273 OA
+HETATM   30  N4  MK1 B 902      16.583  20.913   5.924  1.00 31.19    -0.350 N 
+ATOM     31  H4  MK1 B 902      17.397  21.515   5.801  1.00  0.00     0.163 HD
+HETATM   32  C22 MK1 B 902      16.692  19.500   5.604  1.00 29.22     0.147 C 
+HETATM   33  C23 MK1 B 902      18.067  18.945   5.936  1.00 28.82     0.149 C 
+HETATM   34  O4  MK1 B 902      19.061  19.938   5.729  1.00 28.32    -0.393 OA
+ATOM     35  H4  MK1 B 902      19.921  19.591   5.937  1.00  0.00     0.210 HD
+HETATM   36  C24 MK1 B 902      18.226  17.726   5.057  1.00 32.05     0.073 C 
+HETATM   37  C25 MK1 B 902      17.476  17.904   3.760  1.00 31.29    -0.047 A 
+HETATM   38  C26 MK1 B 902      17.500  17.363   2.496  1.00 32.00     0.008 A 
+HETATM   39  C27 MK1 B 902      16.613  17.872   1.541  1.00 28.00     0.001 A 
+HETATM   40  C28 MK1 B 902      15.722  18.906   1.865  1.00 29.01     0.001 A 
+HETATM   41  C29 MK1 B 902      15.683  19.479   3.129  1.00 27.70     0.010 A 
+HETATM   42  C30 MK1 B 902      16.504  19.061   4.128  1.00 31.86    -0.027 A 
+HETATM   43  C31 MK1 B 902       8.033  23.100   2.604  1.00 36.25     0.312 C 
+HETATM   44  C32 MK1 B 902       6.666  23.739   2.876  1.00 42.75    -0.015 A 
+HETATM   45  C33 MK1 B 902       6.158  24.808   2.124  1.00 47.41     0.096 A 
+HETATM   46  N5  MK1 B 902       4.911  25.430   2.300  1.00 51.38    -0.375 N 
+ATOM     47  H5  MK1 B 902       4.567  26.208   1.737  1.00  0.00     0.164 HD
+HETATM   48  C34 MK1 B 902       4.207  24.839   3.348  1.00 50.60     0.087 A 
+HETATM   49  C35 MK1 B 902       4.654  23.774   4.136  1.00 49.34     0.018 A 
+HETATM   50  C36 MK1 B 902       5.905  23.211   3.897  1.00 44.71     0.011 A 
+ENDROOT
+TORSDOF 14
