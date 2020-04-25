@@ -140,7 +140,7 @@ def test_smina_rigid(tmp_path, capsys):
 
     # Create Docking object
     test_dock = docking_py.Docking(
-        'test_smina',
+        name='test_smina',
         rec_pdbqt=os.path.join(TEST_PATH, 'rec.pdbqt'),
         lig_pdbqt=os.path.join(TEST_PATH, 'lig.pdbqt'))
 
@@ -152,7 +152,8 @@ def test_smina_rigid(tmp_path, capsys):
                           exhaustiveness=2,
                           dock_bin='smina',
                           center=center_lig,
-                          grid_npts=[max_size + 5] * 3)
+                          grid_npts=[max_size + 5] * 3,
+                          seed=1)
 
     captured = capsys.readouterr()
     capture_line = captured.out.split('\n')
@@ -161,7 +162,8 @@ def test_smina_rigid(tmp_path, capsys):
          ".+test_smina_dock_log.txt --num_modes 10 --exhaustiveness 2"
          " --energy_range 1 --out .+test_smina_dock.pdb "
          "--size_x 23.00 --size_y 23.00 --size_z 23.00"
-         " --center_x 13.08 --center_y 22.52 --center_z 5.54"),
+         " --center_x 13.08 --center_y 22.52 --center_z 5.54"
+         " --seed 1"),
         capture_line[0]))
 
     rmsd_list = test_dock.compute_dock_rmsd(test_dock.lig_pdbqt)
@@ -196,7 +198,7 @@ def test_vina_rigid(tmp_path, capsys):
 
     # Create Docking object
     test_dock = docking_py.Docking(
-        'test_vina',
+        name='test_vina',
         rec_pdbqt=os.path.join(TEST_PATH, 'rec.pdbqt'),
         lig_pdbqt=os.path.join(TEST_PATH, 'lig.pdbqt'))
 
@@ -208,7 +210,8 @@ def test_vina_rigid(tmp_path, capsys):
                           exhaustiveness=2,
                           dock_bin='vina',
                           center=center_lig,
-                          grid_npts=[max_size + 5] * 3)
+                          grid_npts=[max_size + 5] * 3,
+                          seed=1)
 
     captured = capsys.readouterr()
     capture_line = captured.out.split('\n')
@@ -217,7 +220,8 @@ def test_vina_rigid(tmp_path, capsys):
          ".+test_vina_dock_log.txt --num_modes 10 --exhaustiveness 2"
          " --energy_range 1 --out .+test_vina_dock.pdb "
          "--size_x 23.00 --size_y 23.00 --size_z 23.00"
-         " --center_x 13.08 --center_y 22.52 --center_z 5.54"),
+         " --center_x 13.08 --center_y 22.52 --center_z 5.54"
+         " --seed 1"),
         capture_line[0]))
 
     rmsd_list = test_dock.compute_dock_rmsd(test_dock.lig_pdbqt)
