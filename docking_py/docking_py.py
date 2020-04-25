@@ -56,11 +56,6 @@ else:
     QVINAW_BIN = os_command.which('qvinaw')
     print("Vina executable is {}".format(VINA_BIN))
 
-    # Use : echo $CONDA_PREFIX
-    # os.environ['CONDA_PREFIX']
-
-    # import glob
-    # glob.glob('/etc/r*.conf')
 
 # Test folder path
 LIB_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -68,7 +63,31 @@ TEST_PATH = os.path.join(LIB_DIR, "../tests/input/")
 
 
 class Docking:
-    """ The Docking class ...
+    """Docking encapsulation class.
+
+    This class can be used to launch vina, smina, qvina and qvinaw.
+
+    :param name: generic name of the system
+    :type name: str
+
+    :param lig_pdb: path of the ligand coordinate file (.pdb)
+    :type lig_pdb: str, optional
+
+    :param rec_pdb: path of the receptor coordinate file (.pdb)
+    :type rec_pdb: str, optional
+
+    :param lig_pdbqt: path of the ligand coordinate file (.pdbqt)
+    :type lig_pdbqt: str, optional
+
+    :param rec_pdbqt: path of the receptor coordinate file (.pdbqt)
+    :type rec_pdbqt: str, optional
+
+    :param dock_pdb: path of the docking ligand coordinate file (.pdb)
+    :type dock_pdb: str, optional
+
+    :param dock_log: path of the docking log file (.log)
+    :type dock_log: str, optional
+
     """
 
     def __init__(self, name, lig_pdb=None, rec_pdb=None,
@@ -184,13 +203,20 @@ class Docking:
         :param lig_pdbqt: output name
         :type lig_pdbqt: str, optional, default=None
 
-        :param name: generic name of the system
-        :type name: str, optional, default=None
+        :param rigid: Flag to define if ligand is rigid
+        :type rigid: bool, optional, default=False
 
-        :param check_file_out: flag to check or not if file has already\
-         been created.
-            If the file is present then the command break.
+        :param check_file_out: flag to check or not if file has already
+            been created. If the file is present then the command break.
         :type check_file_out: bool, optional, default=True
+
+        **Object requirement(s):**
+
+            * self.lig_pdb
+
+        **Object field(s) changed:**
+
+            * self.lig_pdbqt
 
         :Example:
 
@@ -200,6 +226,9 @@ class Docking:
         Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
         >>> lig_coor = coor_1hsg.select_part_dict(\
             selec_dict={'res_name': 'MK1'})
+        >>> lig_atom_num = len(lig_coor.atom_dict)
+        >>> print('Ligand has {} atoms'.format(lig_atom_num))
+        Ligand has 45 atoms
         >>> out_lig = os.path.join(TEST_OUT,'lig.pdb')
         >>> lig_coor.write_pdb(out_lig) #doctest: +ELLIPSIS
         Succeed to save file .../lig.pdb
@@ -248,6 +277,14 @@ class Docking:
             created. If the file is present then the command break.
         :type check_file_out: bool, optional, default=True
 
+        **Object requirement(s):**
+
+            * self.rec_pdb
+
+        **Object field(s) changed:**
+
+            * self.rec_pdbqt
+
         :Example:
 
         >>> TEST_OUT = str(getfixture('tmpdir'))
@@ -260,6 +297,9 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         >>> out_rec = os.path.join(TEST_OUT,'rec.pdb')
         >>> rec_coor.write_pdb(out_rec) #doctest: +ELLIPSIS
         Succeed to save file .../rec.pdb
+        >>> rec_atom_num = len(rec_coor.atom_dict)
+        >>> print('Receptor has {} atoms'.format(rec_atom_num))
+        Receptor has 1514 atoms
         >>> test_dock = Docking('test', rec_pdb=out_rec)
         >>> test_dock.prepare_receptor() #doctest: +ELLIPSIS
         python2.5 .../prepare_receptor4.py -r .../rec.pdb -A checkhydrogens\
@@ -331,7 +371,7 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         return
 
     def rec_com(self):
-        """ Get center of mass
+        """ Get center of mass of the receptor pdb file.
         """
         rec_com = pdb_manip.Coor()
         rec_com.read_pdb(self.rec_pdb)
@@ -339,7 +379,7 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         return
 
     def rec_grid(self, buffer_space=30):
-        """ Compute grid
+        """ Compute grid from the receptor pdb file.
         """
         rec_com = pdb_manip.Coor()
         rec_com.read_pdb(self.rec_pdb)
@@ -347,18 +387,71 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
                           buffer_space).astype(int)
         return
 
-    def run_docking(self, out_pdb=None, log=None, num_modes=100,
-                    dock_bin='vina', energy_range=10, exhaustiveness=16,
-                    check_file_out=True, cpu=None, autobox=False,
-                    center=None, grid_npts=None):
+    def run_docking(self, out_pdb, log=None, dock_bin='vina',
+                    num_modes=100, energy_range=10, exhaustiveness=16,
+                    cpu=None, seed=None, autobox=False,
+                    center=None, grid_npts=None,
+                    check_file_out=True):
         """
-        Run docking
+        Run docking using vina, qvina, qvinaw or smina.
+
+        :param out_pdb: PDB output name
+        :type out_pdb: str
+
+        :param log: Log ouput name
+        :type log: str, optional, default=None
+
+        :param dock_bin: Docking software name ('vina', 'qvina', 'qvinaw',
+            'smina')
+        :type dock_bin: str, optional, default='vina'
+
+        :param num_modes: maximum number of binding modes to generate
+        :type num_modes: int, optional, default=100
+
+        :param energy_range: maximum energy difference between the best binding
+            mode and the worst one displayed (kcal/mol)
+        :type energy_range: int, optional, default=10
+
+        :param exhaustiveness: exhaustiveness of the global search (roughly
+            proportional to time): 1+
+        :type exhaustiveness: int, optional, default=16
+
+        :param cpu: the number of CPUs to use (the default is to try
+            to detect the number of CPUs or, failing that, use 1)
+        :type cpu: int, optional, default=None
+
+        :param seed: explicit random seed
+        :type seed: int, optional, default=None
+
+        :param autobox: Flag to use ligand to define the docking box
+        :type autobox: bool, optional, default=False
+
+        :param center: coordinate of the center (x, y, z, Angstroms)
+        :type center: list, optional, default=None
+
+        :param grid_npts: size in the docking box (x, y, z, Angstroms)
+        :type grid_npts: list, optional, default=None
+
+        :param check_file_out: flag to check or not if file has already been
+            created. If the file is present then the command break.
+        :type check_file_out: bool, optional, default=True
+
+
+        **Object requirement(s):**
+
+            * self.lig_pdbqt
+            * self.rec_pdbqt
+
+        **Object field(s) changed:**
+
+            * self.dock_pdb
+            * self.dock_log
+
+        :Example:
 
         """
 
-        # If out_pdb is not defined use the rec_pdbqt name + .gpf
-        if out_pdb is None:
-            out_pdb = self.name + '_dock.pdb'
+        # If log is not defined use out_pdb minus the '.pdb' and plus '_log.txt'
         if log is None:
             log = out_pdb[:-4] + '_log.txt'
 
@@ -397,6 +490,7 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
             print('Grid points:', self.grid_npts)
         else:
             self.grid_npts = np.array(grid_npts).astype(int)
+
         option += ["--size_x", '{:.2f}'.format(self.grid_npts[0]),
                    "--size_y", '{:.2f}'.format(self.grid_npts[1]),
                    "--size_z", '{:.2f}'.format(self.grid_npts[2])]
@@ -406,6 +500,7 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
             self.rec_com()
         else:
             self.rec_com = center
+
         option += ["--center_x", '{:.2f}'.format(self.rec_com[0]),
                    "--center_y", '{:.2f}'.format(self.rec_com[1]),
                    "--center_z", '{:.2f}'.format(self.rec_com[2])]
@@ -413,6 +508,10 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         # Define cpu number:
         if cpu is not None:
             option += ["--cpu", str(cpu)]
+
+        # Define Seed:
+        if seed is not None:
+            option += ["--seed", str(seed)]
 
         cmd_top = os_command.Command([DOCK_BIN,
                                       "--ligand", self.lig_pdbqt,
@@ -427,9 +526,26 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
 
         self.dock_pdb = out_pdb
         self.dock_log = log
+
         return
 
     def compute_dock_rmsd(self, ref_lig_pdb, selec_dict={}):
+        """
+        Compute RMSD from docking pdb to ``ref_lig_pdb``. By
+        default use all atoms for RMSD calculation.
+        To use only Calpha atoms define ``selec_dict={'name':['CA']}``.
+
+        :param ref_lig_pdb: PDB reference file
+        :type ref_lig_pdb: str
+
+        :param selec_dict: Selection for RMSD calculation
+        :type selec_dict: dict, optional, default={}
+
+
+        :return: RMSD list
+        :rtype: list
+
+        """
 
         cryst_coor = pdb_manip.Coor()
         cryst_coor.read_pdb(ref_lig_pdb)
@@ -443,6 +559,13 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         return rmsd
 
     def extract_affinity(self):
+        """
+        Extract affinity from the docking ``.log`` file.
+
+        :return: Affinity and RMSD informations
+        :rtype: dict
+
+        """
 
         mode_read = False
 
@@ -470,8 +593,24 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         * Keep only amino acid residues
         * Save both coordinates and add it in the object
 
+
+        :param pdb_id: PDB ID
+        :type pdb_id: str
+
+        :param rec_chain: Chain(s) of the receptor
+        :type rec_chain: list of str
+
+        :param lig_chain: Chain(s) of the ligand
+        :type lig_chain: list of str
+
+        :param random_rot: Flag for random rotation of ligand
+        :type random_rot: bool, optional, default=True
+
+        **Object field(s) changed:**
+
             * self.rec_pdb
             * self.lig_pdb
+
         """
 
         # Get pdb:
@@ -523,7 +662,23 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         * align structure on ref
         * Save coordinates and add it in the object
 
+
+        :param pdb_id: PDB ID
+        :type pdb_id: str
+
+        :param ref_pdb: Reference coordinates file
+        :type ref_pdb:  str
+
+        :param rec_chain: Chain(s) of the receptor
+        :type rec_chain: list of str
+
+        :param rec_chain: Chain(s) of the reference file
+        :type rec_chain: list of str
+
+        **Object field(s) changed:**
+
             * self.rec_pdb
+
         """
 
         # Get pdb:
@@ -576,7 +731,10 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         * Keep only amino acid residues
         * Save coordinates and add it in the object
 
+        **Object field(s) changed:**
+
             * self.lig_pdb
+
         """
 
         # Get pdb:

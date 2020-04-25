@@ -95,6 +95,7 @@ Analysis
 Extract affinity and RMSD to crystal structure:
 
 .. code-block:: python
+
     >>> rmsd_list = test_dock.compute_dock_rmsd(test_dock.lig_pdbqt)
     Succeed to read file tmp/lig.pdbqt ,  50 atoms found
     Read 4 Model(s)
