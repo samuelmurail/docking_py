@@ -451,7 +451,8 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
 
         """
 
-        # If log is not defined use out_pdb minus the '.pdb' and plus '_log.txt'
+        # If log is not defined use out_pdb minus the '.pdb' and
+        # plus '_log.txt'
         if log is None:
             log = out_pdb[:-4] + '_log.txt'
 
