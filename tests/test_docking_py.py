@@ -37,8 +37,7 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
     TEST_OUT = str(tmp_path)
 
     # Read 1hsg.pdb, extract lig.pdb and rec.pdb
-    coor_1hsg = pdb_manip.Coor()
-    coor_1hsg.read_pdb(os.path.join(TEST_PATH, '1hsg.pdb'))
+    coor_1hsg = pdb_manip.Coor(os.path.join(TEST_PATH, '1hsg.pdb'))
 
     captured = capsys.readouterr()
     assert bool(
@@ -92,12 +91,14 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
         captured.out))
 
     # Check that receptor is fine
-    coor_rec = pdb_manip.Coor()
-    coor_rec.read_pdb(test_dock.rec_pdbqt)
+    coor_rec = pdb_manip.Coor(test_dock.rec_pdbqt)
+    print('Protein atom number : {}'.format(coor_rec.select_part_dict(
+        {'res_name': pdb_manip.PROTEIN_AA}).num))
 
     captured = capsys.readouterr()
     assert bool(re.match(
-        "Succeed to read file .+rec.pdbqt ,  1844 atoms found\n",
+        "Succeed to read file .+rec.pdbqt ,  1844 atoms found\n"
+        "Protein atom number : 1844\n",
         captured.out))
 
     # Prepare Ligand
@@ -108,12 +109,14 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
                 captured.out))
 
     # Check that ligand pdbqt is fine
-    coor_lig = pdb_manip.Coor()
-    coor_lig.read_pdb(test_dock.lig_pdbqt)
+    coor_lig = pdb_manip.Coor(test_dock.lig_pdbqt)
+    print('Protein atom number : {}'.format(coor_lig.select_part_dict(
+        {'res_name': pdb_manip.PROTEIN_AA}).num))
 
     captured = capsys.readouterr()
     assert bool(re.match(
-        "Succeed to read file .+lig.pdbqt ,  50 atoms found\n",
+        "Succeed to read file .+lig.pdbqt ,  50 atoms found\n"
+        "Protein atom number : 0\n",
         captured.out))
 
 
@@ -123,8 +126,7 @@ def test_smina_rigid(tmp_path, capsys):
     TEST_OUT = str(tmp_path)
 
     # Extract center and max_sizer:
-    lig_coor = pdb_manip.Coor()
-    lig_coor.read_pdb(os.path.join(TEST_PATH, 'lig.pdbqt'))
+    lig_coor = pdb_manip.Coor(os.path.join(TEST_PATH, 'lig.pdbqt'))
 
     center_lig = lig_coor.center_of_mass()
     max_size = lig_coor.get_max_size()
@@ -181,8 +183,7 @@ def test_vina_rigid(tmp_path, capsys):
     TEST_OUT = str(tmp_path)
 
     # Extract center and max_sizer:
-    lig_coor = pdb_manip.Coor()
-    lig_coor.read_pdb(os.path.join(TEST_PATH, 'lig.pdbqt'))
+    lig_coor = pdb_manip.Coor(os.path.join(TEST_PATH, 'lig.pdbqt'))
 
     center_lig = lig_coor.center_of_mass()
     max_size = lig_coor.get_max_size()

@@ -6,7 +6,6 @@
 
 # standard library
 import os
-import urllib.request
 
 # 3rd party packages
 import numpy as np
@@ -221,8 +220,7 @@ class Docking:
         :Example:
 
         >>> TEST_OUT = str(getfixture('tmpdir'))
-        >>> coor_1hsg = pdb_manip.Coor()
-        >>> coor_1hsg.read_pdb(os.path.join(TEST_PATH, '1hsg.pdb'))
+        >>> coor_1hsg = pdb_manip.Coor(os.path.join(TEST_PATH, '1hsg.pdb'))
         Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
         >>> lig_coor = coor_1hsg.select_part_dict(\
             selec_dict={'res_name': 'MK1'})
@@ -236,8 +234,8 @@ class Docking:
         >>> test_dock.prepare_ligand() #doctest: +ELLIPSIS
         python2.5 .../prepare_ligand4.py -l .../lig.pdb -B none -A\
  hydrogens -o .../lig.pdbqt
-        >>> coor_lig = pdb_manip.Coor()
-        >>> coor_lig.read_pdb(test_dock.lig_pdbqt) #doctest: +ELLIPSIS
+        >>> coor_lig = pdb_manip.Coor(test_dock.lig_pdbqt)\
+        #doctest: +ELLIPSIS
         Succeed to read file .../lig.pdbqt ,  50 atoms found
         """
 
@@ -288,12 +286,12 @@ class Docking:
         :Example:
 
         >>> TEST_OUT = str(getfixture('tmpdir'))
-        >>> coor_1hsg = pdb_manip.Coor()
-        >>> coor_1hsg.read_pdb(os.path.join(TEST_PATH, '1hsg.pdb'))
-        Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
+        >>> coor_1hsg = pdb_manip.Coor(os.path.join(TEST_PATH, '1hsg.pdb'))\
+        #doctest: +ELLIPSIS
+        Succeed to read file .../1hsg.pdb ,  1686 atoms found
         >>> # Keep only amino acid
         >>> rec_coor = coor_1hsg.select_part_dict(\
-selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         >>> out_rec = os.path.join(TEST_OUT,'rec.pdb')
         >>> rec_coor.write_pdb(out_rec) #doctest: +ELLIPSIS
         Succeed to save file .../rec.pdb
@@ -304,8 +302,8 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         >>> test_dock.prepare_receptor() #doctest: +ELLIPSIS
         python2.5 .../prepare_receptor4.py -r .../rec.pdb -A checkhydrogens\
  -o .../rec.pdbqt
-        >>> coor_rec = pdb_manip.Coor()
-        >>> coor_rec.read_pdb(test_dock.rec_pdbqt) #doctest: +ELLIPSIS
+        >>> coor_rec = pdb_manip.Coor(test_dock.rec_pdbqt)\
+        #doctest: +ELLIPSIS
         Succeed to read file .../rec.pdbqt ,  1844 atoms found
         """
 
@@ -373,16 +371,14 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
     def rec_com(self):
         """ Get center of mass of the receptor pdb file.
         """
-        rec_com = pdb_manip.Coor()
-        rec_com.read_pdb(self.rec_pdb)
+        rec_com = pdb_manip.Coor(self.rec_pdb)
         self.rec_com = rec_com.center_of_mass()
         return
 
     def rec_grid(self, buffer_space=30):
         """ Compute grid from the receptor pdb file.
         """
-        rec_com = pdb_manip.Coor()
-        rec_com.read_pdb(self.rec_pdb)
+        rec_com = pdb_manip.Coor(self.rec_pdb)
         self.grid_npts = (np.ceil(rec_com.get_box_dim()) +
                           buffer_space).astype(int)
         return
@@ -548,11 +544,9 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
 
         """
 
-        cryst_coor = pdb_manip.Coor()
-        cryst_coor.read_pdb(ref_lig_pdb)
+        cryst_coor = pdb_manip.Coor(ref_lig_pdb)
 
-        dock_coor = pdb_manip.Multi_Coor()
-        dock_coor.read_pdb(self.dock_pdb)
+        dock_coor = pdb_manip.Multi_Coor(self.dock_pdb)
         dock_coor.write_pdb(self.dock_pdb[:-4] + '_vmd.pdb')
 
         rmsd = dock_coor.compute_rmsd_to(cryst_coor, selec_dict=selec_dict)
@@ -585,8 +579,8 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
                         'rmsd_high': float(line_split[3])}
         return mode_info_dict
 
-    def extract_pep_rec_pdb(self, pdb_id, rec_chain,
-                            lig_chain, random_rot=True):
+    def extract_pep_rec_pdb(self, pdb_id, folder_out, rec_select_dict,
+                            lig_select_dict, random_rot=True):
         """ Get pdb file from the rcsb.org website.
 
         * Extract receptor and ligand coordinates
@@ -615,46 +609,44 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         """
 
         # Get pdb:
-        out_pdb = '{}.pdb'.format(pdb_id)
-        urllib.request.urlretrieve(
-            'http://files.rcsb.org/download/{}.pdb'.format(pdb_id), out_pdb)
+        out_pdb = os.path.join(folder_out, '{}.pdb'.format(pdb_id))
+        comp_coor = pdb_manip.Coor()
+        comp_coor.get_PDB(pdb_id, out_pdb)
 
         # Treat PDB files:
-        comp_coor = pdb_manip.Coor()
-        comp_coor.read_pdb('{}.pdb'.format(pdb_id))
-        # Keep only amino acid
-        aa_comp_coor = comp_coor.select_part_dict(selec_dict={
-            'res_name': pdb_manip.AA_DICT.keys()})
+        comp_coor = pdb_manip.Coor('{}.pdb'.format(pdb_id))
 
         # Remove alter_loc B, C, D
-        alter_loc_bcd = aa_comp_coor.get_index_selection(
+        alter_loc_bcd = comp_coor.get_index_selection(
             {'alter_loc': ['B', 'C', 'D']})
-        aa_comp_coor.del_atom_index(index_list=alter_loc_bcd)
-        aa_comp_coor.change_pdb_field(change_dict={"alter_loc": ""})
+        comp_coor.del_atom_index(index_list=alter_loc_bcd)
+        comp_coor.change_pdb_field(change_dict={"alter_loc": ""})
 
         # Extract receptor pdb
-        out_rec = '{}_rec.pdb'.format(pdb_id)
-        rec_coor = aa_comp_coor.select_part_dict(
-            selec_dict={'chain': rec_chain})
+        out_rec = os.path.join(folder_out, '{}_rec.pdb'.format(pdb_id))
+        rec_coor = comp_coor.select_part_dict(
+            rec_select_dict)
         rec_coor.write_pdb(out_rec)
         self.rec_pdb = out_rec
 
         # Extract ligand pdb
-        out_lig = '{}_lig.pdb'.format(pdb_id)
-        lig_coor = aa_comp_coor.select_part_dict(
-            selec_dict={'chain': lig_chain})
+        out_lig = os.path.join(folder_out, '{}_lig.pdb'.format(pdb_id))
+        lig_coor = comp_coor.select_part_dict(
+            lig_select_dict)
         lig_coor.write_pdb(out_lig)
         self.start_lig_pdb = out_lig
 
         # Add random rotation
-        input_lig = '{}_input_lig.pdb'.format(pdb_id)
+        input_lig = os.path.join(folder_out,
+                                 '{}_input_lig.pdb'.format(pdb_id))
         if random_rot:
             tau_x, tau_y, tau_z = np.random.random_sample((3,)) * 360
             lig_coor.rotation_angle(tau_x, tau_y, tau_z)
         lig_coor.write_pdb(input_lig)
         self.lig_pdb = input_lig
 
-    def extract_align_rec_pdb(self, pdb_id, ref_pdb, rec_chain, ref_chain):
+    def extract_align_rec_pdb(self, pdb_id, folder_out, ref_pdb,
+                              rec_chain, ref_chain):
         """ Get pdb file from the rcsb.org website.
 
         * Extract receptor coordinates
@@ -680,18 +672,30 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
 
             * self.rec_pdb
 
+        :Example:
+
+        >>> TEST_OUT = str(getfixture('tmpdir'))
+        >>> dock_1czy = Docking(name='1czy')
+
+        #>>> dock_1czy.extract_peplig_pdb('1czy', TEST_OUT, ['A'], ['A'])
+        #Succeed to read file 1czy.pdb ,  4348 atoms found
+        #Succeed to save file 1czy_lig.pdb
+        #Succeed to save file 1czy_input_lig.pdb
+        #>>> coor_lig = pdb_manip.Coor(dock_1czy.lig_pdb)
+        #Succeed to read file 1czy_input_lig.pdb ,  54 atoms found
+
         """
 
         # Get pdb:
-        out_pdb = '{}.pdb'.format(pdb_id)
-        urllib.request.urlretrieve(
-            'http://files.rcsb.org/download/{}.pdb'.format(pdb_id), out_pdb)
-        # Treat PDB files:
+        out_pdb = os.path.join(folder_out, '{}.pdb'.format(pdb_id))
         comp_coor = pdb_manip.Coor()
-        comp_coor.read_pdb('{}.pdb'.format(pdb_id))
+        comp_coor.get_PDB(pdb_id, out_pdb)
+
+        # Treat PDB files:
+        comp_coor = pdb_manip.Coor('{}.pdb'.format(pdb_id))
         # Keep only amino acid
         aa_comp_coor = comp_coor.select_part_dict(
-            selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+            selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Remove alter_loc B, C, D
         alter_loc_bcd = aa_comp_coor.get_index_selection(
@@ -704,11 +708,10 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
             selec_dict={'chain': rec_chain})
 
         # Read ref_pdb
-        ref_coor = pdb_manip.Coor()
-        ref_coor.read_pdb(ref_pdb)
+        ref_coor = pdb_manip.Coor(ref_pdb)
         # Keep only amino acid
         aa_ref_coor = ref_coor.select_part_dict(
-            selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+            selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Remove alter_loc B, C, D
         alter_loc_bcd = aa_ref_coor.get_index_selection(
             {'alter_loc': ['B', 'C', 'D']})
@@ -717,58 +720,66 @@ selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
         rec_coor.align_seq_coor_to(
             aa_ref_coor, chain_1=rec_chain, chain_2=ref_chain)
 
-        out_rec = '{}_rec.pdb'.format(pdb_id)
+        out_rec = os.path.join(folder_out, '{}_rec.pdb'.format(pdb_id))
         rec_coor.write_pdb(out_rec)
 
         self.rec_pdb = out_rec
 
         return
 
-    def extract_peplig_pdb(self, pdb_id, lig_chain, random_rot=True):
+    def extract_ligand_PDB(self, pdb_id, folder_out, lig_select_dict,
+                           random_rot=True):
         """ Get pdb file from the rcsb.org website.
 
-        * Extract peptide ligand coordinates
+        * Extract ligand coordinates
         * remove alternative location
-        * Keep only amino acid residues
         * Save coordinates and add it in the object
 
         **Object field(s) changed:**
 
             * self.lig_pdb
 
+        :Example:
+
+        >>> TEST_OUT = str(getfixture('tmpdir'))
+        >>> dock_1czy = Docking(name='1czy')
+        >>> dock_1czy.extract_ligand_PDB('1czy', TEST_OUT, {'chain': ['D'],\
+        'res_name': pdb_manip.PROTEIN_AA}) #doctest: +ELLIPSIS
+        Succeed to read file ...1czy.pdb ,  4348 atoms found
+        Succeed to save file ...1czy_lig.pdb
+        Succeed to save file ...1czy_input_lig.pdb
+        >>> coor_lig = pdb_manip.Coor(dock_1czy.lig_pdb) #doctest: +ELLIPSIS
+        Succeed to read file ...1czy_input_lig.pdb ,  54 atoms found
+
         """
 
         # Get pdb:
-        out_pdb = '{}.pdb'.format(pdb_id)
-        urllib.request.urlretrieve(
-            'http://files.rcsb.org/download/{}.pdb'.format(pdb_id), out_pdb)
-        # Treat PDB files:
+        out_pdb = os.path.join(folder_out, '{}.pdb'.format(pdb_id))
         comp_coor = pdb_manip.Coor()
-        comp_coor.read_pdb('{}.pdb'.format(pdb_id))
-        # Keep only amino acid
-        aa_comp_coor = comp_coor.select_part_dict(
-            selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+        comp_coor.get_PDB(pdb_id, out_pdb)
 
         # Remove alter_loc B, C, D
-        alter_loc_bcd = aa_comp_coor.get_index_selection(
+        alter_loc_bcd = comp_coor.get_index_selection(
             {'alter_loc': ['B', 'C', 'D']})
 
-        aa_comp_coor.del_atom_index(index_list=alter_loc_bcd)
-        aa_comp_coor.change_pdb_field(change_dict={"alter_loc": ""})
+        comp_coor.del_atom_index(index_list=alter_loc_bcd)
+        comp_coor.change_pdb_field(change_dict={"alter_loc": ""})
 
         # Extract ligand pdb
-        out_lig = '{}_lig.pdb'.format(pdb_id)
-        lig_coor = aa_comp_coor.select_part_dict(
-            selec_dict={'chain': lig_chain})
+        out_lig = os.path.join(folder_out, '{}_lig.pdb'.format(pdb_id))
+        lig_coor = comp_coor.select_part_dict(
+            selec_dict=lig_select_dict)
 
         lig_coor.write_pdb(out_lig)
         self.start_lig_pdb = out_lig
 
-        input_lig = '{}_input_lig.pdb'.format(pdb_id)
+        input_lig = os.path.join(folder_out,
+                                 '{}_input_lig.pdb'.format(pdb_id))
         if random_rot:
             tau_x, tau_y, tau_z = np.random.random_sample((3,)) * 360
-            lig_coor.rotation(tau_x, tau_y, tau_z)
+            lig_coor.rotation_angle(tau_x, tau_y, tau_z)
         lig_coor.write_pdb(input_lig)
+
         self.lig_pdb = input_lig
 
 
