@@ -30,8 +30,7 @@ First you need to extract the ligand coordinates, we will use the `1hsg.pdb` PDB
     >>> from pdb_manip_py import pdb_manip
     >>> # Create a Coor object
     >>> coor_1hsg = pdb_manip.Coor()
-    >>> # Read the pdb file
-    >>> coor_1hsg.read_pdb('1hsg.pdb'))
+    >>> coor_1hsg.get_PDB('1hsg')
     Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
     >>> # Select res_name MK1
     >>> lig_coor = coor_1hsg.select_part_dict(
