@@ -47,7 +47,7 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
     # Extratc Protein:
     # Keep only amino acid
     rec_coor = coor_1hsg.select_part_dict(
-        selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+        selec_dict={'res_name': pdb_manip.PROTEIN_AA})
     out_rec = os.path.join(TEST_OUT, 'rec.pdb')
     rec_coor.write_pdb(out_rec)
 
