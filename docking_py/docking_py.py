@@ -386,7 +386,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
     def run_docking(self, out_pdb, log=None, dock_bin='vina',
                     num_modes=100, energy_range=10, exhaustiveness=16,
                     cpu=None, seed=None, autobox=False,
-                    center=None, grid_npts=None,
+                    center=None, grid_npts=None,min_rmsd_filter=None, scoring=None,
                     check_file_out=True):
         """
         Run docking using vina, qvina, qvinaw or smina.
@@ -509,6 +509,12 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Define Seed:
         if seed is not None:
             option += ["--seed", str(seed)]
+
+        if dock_bin == 'smina':
+            if min_rmsd_filter is not None:
+                option += ["--min_rmsd_filter", str(min_rmsd_filter)]
+            if scoring is not None:
+                option += ["--scoring", str(scoring)]
 
         cmd_top = os_command.Command([DOCK_BIN,
                                       "--ligand", self.lig_pdbqt,
