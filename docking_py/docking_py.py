@@ -386,8 +386,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
     def run_docking(self, out_pdb, log=None, dock_bin='vina',
                     num_modes=100, energy_range=10, exhaustiveness=16,
                     cpu=None, seed=None, autobox=False,
-                    center=None, grid_npts=None,min_rmsd_filter=None, scoring=None,
-                    check_file_out=True):
+                    center=None, grid_npts=None, min_rmsd_filter=None,
+                    scoring=None, check_file_out=True):
         """
         Run docking using vina, qvina, qvinaw or smina.
 
@@ -696,7 +696,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         #doctest: +ELLIPSIS
         Succeed to read file ...1hsg.pdb ,  1686 atoms found
         Succeed to save file ...1hsg_rec.pdb
-        >>> coor_lig = pdb_manip.Coor(dock_1hsg.rec_pdb) #doctest: +ELLIPSIS
+        >>> coor_rec = pdb_manip.Coor(dock_1hsg.rec_pdb) #doctest: +ELLIPSIS
         Succeed to read file ...1hsg_rec.pdb ,  1514 atoms found
 
         """
@@ -713,39 +713,57 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Extract receptor pdb
         rec_coor = comp_coor.select_part_dict(rec_select_dict)
 
-        """
-        # Read ref_pdb
-        ref_coor = pdb_manip.Coor(ref_pdb)
-        # Keep only amino acid
-        aa_ref_coor = ref_coor.select_part_dict(
-            selec_dict={'res_name': pdb_manip.PROTEIN_AA})
-        # Remove alter_loc B, C, D
-        alter_loc_bcd = aa_ref_coor.get_index_selection(
-            {'alter_loc': ['B', 'C', 'D']})
-        aa_ref_coor.del_atom_index(index_list=alter_loc_bcd)
-
-        rec_coor.align_seq_coor_to(
-            aa_ref_coor, chain_1=rec_chain, chain_2=ref_chain)
-
-        """
         out_rec = os.path.join(folder_out, '{}_rec.pdb'.format(self.name))
         rec_coor.write_pdb(out_rec)
         self.rec_pdb = out_rec
 
         return
 
-    def align_receptor(self, ref_pdb, sele_dict):
+    def align_receptor(self, ref_pdb, sele_dict={}):
         """
         Align self.rec_pdb to ref_pdb.
 
-        
+        :Example:
+
+        >>> TEST_OUT = str(getfixture('tmpdir'))
+        >>> dock_4yob = Docking(name='4yob')
+        >>> dock_4yob.extract_receptor(os.path.join(TEST_PATH, '4yob.pdb'),\
+        TEST_OUT, {'res_name': pdb_manip.PROTEIN_AA})\
+        #doctest: +ELLIPSIS
+        Succeed to read file ...4yob.pdb ,  916 atoms found
+        Succeed to save file ...4yob_rec.pdb
+        >>> dock_4yob.align_receptor(os.path.join(TEST_PATH, '1hsg.pdb'),\
+sele_dict={'chain':['A']})
+        Succeed to read file .../4yob_rec.pdb ,  760 atoms found
+        Succeed to read file .../1hsg.pdb ,  1686 atoms found
+        PQITLWKRPIVTIKIGGQLKEALLNTGADDTVFEEVNLPGRWKPKLIGGIGGFVKVRQYDQVPIEICGHKVIGTVLVGPT
+        ******|**|**************|*******|**||********|*******|*******| ******\
+*|*********
+        PQITLWQRPLVTIKIGGQLKEALLDTGADDTVLEEMSLPGRWKPKMIGGIGGFIKVRQYDQILIEICGHKAIGTVLVGPT
+        <BLANKLINE>
+        PTNVIGRNLMTQIGCTLNF
+        *|*|*****|*********
+        PVNIIGRNLLTQIGCTLNF
+        <BLANKLINE>
+        Succeed to save file .../4yob_rec.pdb
+        >>> coor_holo = pdb_manip.Coor(os.path.join(TEST_PATH, '1hsg.pdb'))\
+        #doctest: +ELLIPSIS
+        Succeed to read file ...1hsg.pdb ,  1686 atoms found
+        >>> coor_rec = pdb_manip.Coor(dock_4yob.rec_pdb) #doctest: +ELLIPSIS
+        Succeed to read file ...4yob_rec.pdb ,  760 atoms found
+        >>> rmsd = coor_rec.compute_rmsd_to(coor_holo,\
+        selec_dict={'name': ['CA'], 'chain':['A']})
+        >>> print('RMSD after alignement is {:.2f} Å'.format(rmsd))
+        RMSD after alignement is 1.50 Å
         """
+
         # Extract receptor pdb
         rec_coor = pdb_manip.Coor(self.rec_pdb)
 
         # Read ref_pdb
         ref_coor = pdb_manip.Coor(ref_pdb)
         # Keep only amino acid
+        aa_ref_coor = ref_coor.select_part_dict(sele_dict)
         aa_ref_coor = ref_coor.select_part_dict(
             selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Remove alter_loc B, C, D
@@ -754,6 +772,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         aa_ref_coor.del_atom_index(index_list=alter_loc_bcd)
 
         rec_coor.align_seq_coor_to(aa_ref_coor)
+        rec_coor.write_pdb(self.rec_pdb, check_file_out=False)
 
         return
 
