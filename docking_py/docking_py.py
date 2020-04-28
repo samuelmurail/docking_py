@@ -728,6 +728,29 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         return
 
+    def align_receptor(self, ref_pdb, sele_dict):
+        """
+        Align self.rec_pdb to ref_pdb.
+
+        
+        """
+        # Extract receptor pdb
+        rec_coor = pdb_manip.Coor(self.rec_pdb)
+
+        # Read ref_pdb
+        ref_coor = pdb_manip.Coor(ref_pdb)
+        # Keep only amino acid
+        aa_ref_coor = ref_coor.select_part_dict(
+            selec_dict={'res_name': pdb_manip.PROTEIN_AA})
+        # Remove alter_loc B, C, D
+        alter_loc_bcd = aa_ref_coor.get_index_selection(
+            {'alter_loc': ['B', 'C', 'D']})
+        aa_ref_coor.del_atom_index(index_list=alter_loc_bcd)
+
+        rec_coor.align_seq_coor_to(aa_ref_coor)
+
+        return
+
     def extract_ligand(self, coor_in, folder_out, lig_select_dict):
         """
         * Extract ligand coordinates
@@ -769,17 +792,6 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         lig_coor.write_pdb(out_lig)
         self.lig_pdb = out_lig
-
-        """
-        input_lig = os.path.join(folder_out,
-                                 '{}_input_lig.pdb'.format(self.name))
-        if random_rot:
-            tau_x, tau_y, tau_z = np.random.random_sample((3,)) * 360
-            lig_coor.rotation_angle(tau_x, tau_y, tau_z)
-        lig_coor.write_pdb(input_lig)
-
-        self.lig_pdb = input_lig
-        """
 
     def random_rot_ligand(self):
         """
