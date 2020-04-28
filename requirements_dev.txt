@@ -11,3 +11,8 @@ twine
 pytest
 pytest-runner
 pytest-cov
+
+numpy
+os_command_py
+pdb_manip_py
+pdb2pqr-htmd-propka30
