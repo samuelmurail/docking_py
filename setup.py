@@ -20,7 +20,7 @@ setup_requirements = ['pytest-runner', ]
 test_requirements = ['pytest>=3', ]
 
 setup(
-    version='0.1.0',
+    version='0.2.0',
     author="Samuel Murail",
     author_email='samuel.murail@u-paris.fr',
     python_requires='>=3.5',
