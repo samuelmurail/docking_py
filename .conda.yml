@@ -1,0 +1,10 @@
+name: docking
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python>=3.5
+  - mgltools=1.5.6
+  - smina
+  - autodock-vina
+  - qvina

@@ -5,9 +5,12 @@ Credits
 Development Lead
 ----------------
 
-* Samuel Murail <samuel.murail@u-paris.fr>
+* Samuel Murail, Université de Paris <samuel.murail@u-paris.fr>
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Pierre Tuffery, INSERM
+* Damien Espana
+
+We are open to any contribution.
