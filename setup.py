@@ -18,7 +18,7 @@ requirements = ['numpy',
 test_requirements = ['pytest>=3', ]
 
 setup(
-    version='0.2.0',
+    version='0.2.1',
     author="Samuel Murail",
     author_email='samuel.murail@u-paris.fr',
     python_requires='>=3.5',
