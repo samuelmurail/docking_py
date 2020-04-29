@@ -15,8 +15,6 @@ requirements = ['numpy',
                 'pdb_manip_py',
                 'pdb2pqr-htmd-propka30']
 
-setup_requirements = ['pytest-runner', ]
-
 test_requirements = ['pytest>=3', ]
 
 setup(
@@ -50,7 +48,6 @@ setup(
     keywords='docking_py',
     name='docking_py',
     packages=find_packages(include=['docking_py', 'docking_py.*']),
-    setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/samuelmurail/docking_py',
