@@ -827,6 +827,7 @@ sele_dict={'chain':['A']})
             * self.lig_pdb
 
         :Example:
+
         >>> TEST_OUT = str(getfixture('tmpdir'))
         >>> dock_1hsg = Docking(name='1hsg')
         >>> dock_1hsg.extract_ligand(os.path.join(TEST_PATH, '1hsg.pdb'),\
