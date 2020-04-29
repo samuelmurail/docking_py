@@ -1,9 +1,7 @@
-Docking Python Modules
-=======================================
+docking_py
+==========
 
-Docking
----------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: docking_py.docking_py
-    :members: 
-
+   docking_py
