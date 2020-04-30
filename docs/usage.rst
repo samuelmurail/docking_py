@@ -16,7 +16,7 @@ To use Docking Python in a project:
 .. code-block:: python
 
 
-    from docking_py import docking_py
+    from docking_py import docking
 
 
 Extract Ligand coordinates with ``pdb_manip_py``
@@ -59,7 +59,7 @@ You need to create a ``Docking`` object, and the use the functions ``prepare_lig
 
 .. code-block:: python
 
-    >>> test_dock = docking_py.Docking('test', lig_pdb='lig.pdb', rec_pdb='rec.pdb')
+    >>> test_dock = docking.Docking('test', lig_pdb='lig.pdb', rec_pdb='rec.pdb')
     >>> test_dock.prepare_ligand()
     python2.5 .../prepare_ligand4.py -l lig.pdb -B none -A\
     hydrogens -o lig.pdbqt
