@@ -7,7 +7,7 @@ import pytest
 import os
 import re
 
-from docking_py import docking_py
+from docking_py import docking
 from pdb_manip_py import pdb_manip
 
 # Test folder path
@@ -77,9 +77,9 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
                 captured.out))
 
     # Create Docking object
-    test_dock = docking_py.Docking('test',
-                                   rec_pdb=out_rec,
-                                   lig_pdb=out_lig)
+    test_dock = docking.Docking('test',
+                                rec_pdb=out_rec,
+                                lig_pdb=out_lig)
 
     # Prepare receptor
     test_dock.prepare_receptor()
@@ -134,14 +134,14 @@ def test_smina_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match('Succeed to read file tests/input/lig.pdbqt ,  50 '
+    assert bool(re.match('Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
                          '18.0 Å\n',
                 captured.out))
 
     # Create Docking object
-    test_dock = docking_py.Docking(
+    test_dock = docking.Docking(
         name='test_smina',
         rec_pdbqt=os.path.join(TEST_PATH, 'rec.pdbqt'),
         lig_pdbqt=os.path.join(TEST_PATH, 'lig.pdbqt'))
@@ -191,14 +191,14 @@ def test_vina_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match('Succeed to read file tests/input/lig.pdbqt ,  50 '
+    assert bool(re.match('Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
                          '18.0 Å\n',
                 captured.out))
 
     # Create Docking object
-    test_dock = docking_py.Docking(
+    test_dock = docking.Docking(
         name='test_vina',
         rec_pdbqt=os.path.join(TEST_PATH, 'rec.pdbqt'),
         lig_pdbqt=os.path.join(TEST_PATH, 'lig.pdbqt'))

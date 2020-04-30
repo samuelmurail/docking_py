@@ -58,7 +58,7 @@ else:
 
 # Test folder path
 LIB_DIR = os.path.dirname(os.path.abspath(__file__))
-TEST_PATH = os.path.join(LIB_DIR, "../tests/input/")
+TEST_PATH = os.path.join(LIB_DIR, "./tests/input/")
 
 
 class Docking:
@@ -220,8 +220,9 @@ class Docking:
         :Example:
 
         >>> TEST_OUT = str(getfixture('tmpdir'))
-        >>> coor_1hsg = pdb_manip.Coor(os.path.join(TEST_PATH, '1hsg.pdb'))
-        Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
+        >>> coor_1hsg = pdb_manip.Coor(os.path.join(TEST_PATH, '1hsg.pdb'))\
+        #doctest: +ELLIPSIS
+        Succeed to read file ...tests/input/1hsg.pdb ,  1686 atoms found
         >>> lig_coor = coor_1hsg.select_part_dict(\
             selec_dict={'res_name': 'MK1'})
         >>> lig_atom_num = lig_coor.num
