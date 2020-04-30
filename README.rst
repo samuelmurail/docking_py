@@ -13,6 +13,9 @@ Docking Python
 .. image:: https://codecov.io/gh/samuelmurail/docking_py/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/samuelmurail/docking_py
 
+.. image:: https://badge.fury.io/py/docking-py.svg
+   :target: https://badge.fury.io/py/docking-py
+
 
 
 Docking_py is a python library allowing a simplified use of the Smina, vina, qvina2 and qvinaw docking software. Docking_py can be easily automatize and scripted.
