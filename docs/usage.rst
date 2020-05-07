@@ -16,7 +16,7 @@ To use Docking Python in a project:
 .. code-block:: python
 
 
-    from docking_py import docking
+    >>> from docking_py import docking
 
 
 Extract Ligand coordinates with ``pdb_manip_py``
@@ -34,7 +34,7 @@ First you need to extract the ligand coordinates, we will use the `1hsg.pdb` PDB
     Succeed to read file tests/input/1hsg.pdb ,  1686 atoms found
     >>> # Select res_name MK1
     >>> lig_coor = coor_1hsg.select_part_dict(
-    ...     selec_dict={'res_name': 'MK1'})
+    ...     selec_dict={'res_name': ['MK1']})
     >>> # Save the ligand coordinates
     >>> lig_coor.write_pdb('lig.pdb')
     Succeed to save file lig.pdb
@@ -48,7 +48,7 @@ Then you need to extract the receptor coordinates, we will use the `1hsg.pdb` PD
 
     >>> # Keep only the amino acids
     >>> rec_coor = coor_1hsg.select_part_dict(\
-    ...     selec_dict={'res_name': pdb_manip.AA_DICT.keys()})
+    ...     selec_dict={'res_name': pdb_manip.PROTEIN_AA)})
     >>> rec_coor.write_pdb('rec.pdb')
     Succeed to save file rec.pdb
 

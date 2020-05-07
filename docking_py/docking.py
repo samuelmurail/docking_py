@@ -647,20 +647,20 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         self.rec_pdb = out_rec
 
         # Extract ligand pdb
-        out_lig = os.path.join(folder_out, '{}_lig.pdb'.format(self.name))
+        out_ref_lig = os.path.join(folder_out, '{}_lig.pdb'.format(self.name))
         lig_coor = comp_coor.select_part_dict(
             lig_select_dict)
-        lig_coor.write_pdb(out_lig)
-        self.start_lig_pdb = out_lig
+        lig_coor.write_pdb(out_ref_lig)
+        self.ref_lig_pdb = out_ref_lig
 
         # Add random rotation
-        input_lig = os.path.join(folder_out,
-                                 '{}_input_lig.pdb'.format(self.name))
+        out_lig = os.path.join(folder_out,
+                               '{}_input_lig.pdb'.format(self.name))
         if random_rot:
             tau_x, tau_y, tau_z = np.random.random_sample((3,)) * 360
             lig_coor.rotation_angle(tau_x, tau_y, tau_z)
-        lig_coor.write_pdb(input_lig)
-        self.lig_pdb = input_lig
+        lig_coor.write_pdb(out_lig)
+        self.lig_pdb = out_lig
 
     def extract_receptor(self, coor_in, folder_out,
                          rec_select_dict):
