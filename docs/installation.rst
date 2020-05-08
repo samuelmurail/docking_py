@@ -13,12 +13,20 @@ You need to create a conda environment to be able to use:
 * smina
 * qvina2 and qvinaw
 * MGLTools for ``prepare_ligand4.py`` and ``prepare_receptor4.py`` scripts.
+* Autodock with or without GPU *support*
 
 Use `conda en create` to create it using the ``.conda.yml`` file. You can overide the environmnent name using the option ``--name YOUR_NAME``.
 
 .. code-block:: console
 
     $ conda env create -f .conda.yml
+
+If you use a linux OS and add a GPU cart, you should use the ``autodock-gpu`` version:
+
+.. code-block:: console
+
+    $ conda env create -f .conda_gpu.yml
+
 
 This will create an environmnet called ``docking`` (or the name you defined). You will then, need to activate the environmnent:
 
