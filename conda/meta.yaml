@@ -36,8 +36,6 @@ test:
     - docking_py.docking
   requires:
     - pytest
-  commands:
-    - pytest --pyargs docking_py --doctest-modules
 
 about:
   home: "https://github.com/samuelmurail/docking_py"
