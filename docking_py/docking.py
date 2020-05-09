@@ -390,11 +390,18 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         if spacing != 0.375:
             option_gpf += ['-p', 'spacing={:.2f}'.format(spacing)]
 
-        if grid_npts is not None:
-            option_gpf += ['-p', 'npts={:d},{:d},{:d}'.format(*grid_npts)]
+        # Add grid points
+        if grid_npts is None:
+            self.rec_grid(spacing=spacing)
+            print('Grid points:', self.grid_npts)
+        option_gpf += ['-p', 'npts={:d},{:d},{:d}'.format(*self.grid_npts)]
 
-        if center is not None:
-            option_gpf += ['-p', 'gridcenter={:.2f},{:.2f},{:.2f}'.format(*center)]
+        # Add grid points
+        if center is None:
+            self.rec_com()
+            print('Center:', self.rec_com)
+        option_gpf += ['-p', 'gridcenter={:.2f},{:.2f},{:.2f}'.format(
+            *self.rec_com)]
 
         cmd_grid = os_command.Command([MGLTOOL_PYTHON, PREPARE_GPF,
                                        "-r", self.rec_pdbqt,
@@ -512,15 +519,16 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         out_folder = os_command.get_directory(dock_log)
         dock_log = os.path.basename(dock_log)
         os_command.create_and_go_dir(out_folder)
+        self.get_gridfld()
 
         cmd_dock = os_command.Command([AUTODOCK_GPU_BIN,
-                                       "-ffile", self.dpf,
+                                       "-ffile", self.gridfld,
                                        "-lfile", self.lig_pdbqt,
                                        "-resnam", dock_log[:-4]])
         cmd_dock.display()
         cmd_dock.run()
 
-        self.dock_log = dock_log
+        self.dock_log = dock_log[:-4] + '.dlg'
         os.chdir(start_dir)
         return
 
@@ -542,6 +550,19 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         self.dock_pdb = out_pdb
 
+        return
+
+    def get_gridfld(self):
+        """
+        Get ``gridfld`` from the ``.gpf`` file.
+        """
+
+        with open(self.gpf) as file:
+            for line in file:
+                if line.startswith('gridfld'):
+                    gridfld = line.split()[1]
+
+        self.gridfld = gridfld
         return
 
     def get_npts(self):
