@@ -25,16 +25,11 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  # - conda config --add channels conda-forge
-  # - conda config --add channels bioconda
-  # - conda config --add channels acellera
   - conda env create -f .conda.yml
-  # - conda create -q --name docking python=$PYTHON_VERSION smina autodock-vina qvina mgltools=1.5.6
   - conda activate docking
   # Need to update pip, setuptools and wheel only for python3.5
   - pip install -U pip setuptools wheel 
-  # Install tox-travis to use tox in travis
-  # - pip install tox-travis tox-conda
+  # Install tox-conda to use tox in conda
   - pip install tox-conda
   - pip install -r requirements.txt
 
