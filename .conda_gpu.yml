@@ -12,4 +12,5 @@ dependencies:
   - smina
   - autodock-vina
   - qvina
+  - autodock
   - autodock-gpu
