@@ -524,7 +524,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         cmd_dock = os_command.Command([AUTODOCK_GPU_BIN,
                                        "-ffile", self.gridfld,
                                        "-lfile", self.lig_pdbqt,
-                                       "-nrun", nrun,
+                                       "-nrun", str(nrun),
                                        "-resnam", dock_log[:-4]])
         cmd_dock.display()
         cmd_dock.run()
