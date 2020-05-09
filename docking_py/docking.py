@@ -23,25 +23,6 @@ if on_rtd:
     SMINA_GPF = ''
     SMINA_PYTHON = ''
 else:
-    SMINA_LIG = os_command.which('prepare_ligand4.py')
-    print("Smina ligand script is {}".format(SMINA_LIG))
-    SMINA_REC = os_command.which('prepare_receptor4.py')
-    print("Smina receptor script is {}".format(SMINA_REC))
-
-    CONDA_PREFIX = os.getenv('CONDA_PREFIX')
-    # With tox CONDA_PREFIX is None
-    if CONDA_PREFIX is None:
-        CONDA_PREFIX = '/'.join(SMINA_REC.split('/')[:-2])
-
-    # Find a way to fix this !!
-    SMINA_GPF = os.path.join(
-        CONDA_PREFIX,
-        'MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py')
-    print("Smina grid script is {}".format(SMINA_GPF))
-
-    # Find python 2 from conda env
-    SMINA_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.5')
-    print("Python Smina is {}".format(SMINA_PYTHON))
 
     SMINA_BIN = os_command.which('smina')
     print("Smina executable is {}".format(SMINA_BIN))
@@ -54,6 +35,39 @@ else:
 
     QVINAW_BIN = os_command.which('qvinaw')
     print("Vina executable is {}".format(VINA_BIN))
+
+    # MGLTools scripts:
+
+    PREPARE_LIG = os_command.which('prepare_ligand4.py')
+    print("MGLTools ligand script is {}".format(PREPARE_LIG))
+    PREPARE_REC = os_command.which('prepare_receptor4.py')
+    print("MGLTools receptor script is {}".format(PREPARE_REC))
+
+    # Find python 2 from conda env
+    CONDA_PREFIX = os.getenv('CONDA_PREFIX')
+    # With tox CONDA_PREFIX is None
+    if CONDA_PREFIX is None:
+        CONDA_PREFIX = '/'.join(PREPARE_REC.split('/')[:-2])
+
+    MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.5')
+    print("Python Smina is {}".format(MGLTOOL_PYTHON))
+
+    PREPARE_GPF = os.path.join(
+        CONDA_PREFIX,
+        'MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py')
+    print("MGLTools grid script is {}".format(PREPARE_GPF))
+
+    PREPARE_DPF = os.path.join(
+        CONDA_PREFIX,
+        'MGLToolsPckgs/AutoDockTools/Utilities24/prepare_dpf42.py')
+    print("MGLTools docking prepare script is {}".format(PREPARE_DPF))
+
+    # Autodock part
+    AUTOGRID_BIN = os_command.which('autogrid4')
+    print("Autogrid4 executable is {}".format(AUTOGRID_BIN))
+
+    AUTODOCK_BIN = os_command.which('autodock4')
+    print("Autodock4 executable is {}".format(AUTODOCK_BIN))
 
 
 # Test folder path
@@ -132,6 +146,12 @@ class Docking:
         return None
 
     @property
+    def dpf(self):
+        if self._dpf is not None:
+            return os.path.relpath(self._dpf)
+        return None
+
+    @property
     def dock_pdb(self):
         if self._dock_pdb is not None:
             return os.path.relpath(self._dock_pdb)
@@ -179,6 +199,13 @@ class Docking:
             self._grid = os_command.full_path_and_check(grid)
         else:
             self._grid = None
+
+    @dpf.setter
+    def dpf(self, dpf):
+        if dpf is not None:
+            self._dpf = os_command.full_path_and_check(dpf)
+        else:
+            self._dpf = None
 
     @dock_pdb.setter
     def dock_pdb(self, dock_pdb):
@@ -254,7 +281,7 @@ class Docking:
         if rigid:
             option.append('-Z')
 
-        cmd_lig = os_command.Command([SMINA_PYTHON, SMINA_LIG,
+        cmd_lig = os_command.Command([MGLTOOL_PYTHON, PREPARE_LIG,
                                       "-l", self._lig_pdb,
                                       "-B", 'none',
                                       "-A", 'hydrogens',
@@ -321,7 +348,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             self.rec_pdbqt = rec_pdbqt
             return
 
-        cmd_rec = os_command.Command([SMINA_PYTHON, SMINA_REC,
+        cmd_rec = os_command.Command([MGLTOOL_PYTHON, PREPARE_REC,
                                       "-r", self.rec_pdb,
                                       "-A", 'checkhydrogens',
                                       "-o", rec_pdbqt])
@@ -331,28 +358,133 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         self.rec_pdbqt = rec_pdbqt
         return
 
-    def prepare_grid(self, grid_out=None, check_file_out=True):
+    def prepare_grid(self, out_folder, gpf_out=None, parameters=None,
+                     check_file_out=True):
         """ Grid preparation
+
+        Launch the ``prepare_gpf4.py`` command from MGLToolsPackage.
+
         """
 
-        # If grid_out is not defined use the rec_pdbqt name + .gpf
-        if grid_out is None:
-            grid_out = self.name + '.gpf'
+        start_dir = os.path.abspath(".")
+
+        # Create and go in out_folder:
+        # This is necessary for the autogrid creation
+        os_command.create_and_go_dir(out_folder)
+
+        if gpf_out is None:
+            gpf_out = self.name + '.gpf'
 
         # Check if output files exist:
-        if check_file_out and os_command.check_file_and_create_path(grid_out):
-            print("prepare_grid() not launched", grid_out, "already exist")
-            self.grid = grid_out
+        if check_file_out and os_command.check_file_and_create_path(gpf_out):
+            print("prepare_grid() not launched", gpf_out, "already exist")
+            self.gpf = gpf_out
+            os.chdir(start_dir)
             return
 
-        cmd_grid = os_command.Command([SMINA_PYTHON, SMINA_GPF,
+        # Add parameters for prepare_gpf
+        option_gpf = []
+
+        if parameters is not None:
+            option_gpf += ['-p', parameters]
+
+        cmd_grid = os_command.Command([MGLTOOL_PYTHON, PREPARE_GPF,
                                        "-r", self.rec_pdbqt,
                                        "-l", self.lig_pdbqt,
-                                       "-o", grid_out])
+                                       "-o", gpf_out] + option_gpf)
         cmd_grid.display()
         cmd_grid.run()
 
-        self.grid = grid_out
+        grid_log = gpf_out[:-4] + '.log'
+        cmd_autogrid = os_command.Command([AUTOGRID_BIN,
+                                           "-p", gpf_out,
+                                           "-l", grid_log])
+        cmd_autogrid.display()
+        cmd_autogrid.run()
+
+        self.gpf = gpf_out
+
+        os.chdir(start_dir)
+
+        return
+
+    def prepare_docking(self, dpf_out, parameters=None,
+                        check_file_out=True):
+        """ Docking preparation
+
+        Launch the ``prepare_gpf4.py`` command from MGLToolsPackage.
+
+        """
+
+        option = []
+
+        if parameters is not None:
+            option += ['-p', parameters]
+
+        # Check if output files exist:
+        if check_file_out and os_command.check_file_and_create_path(dpf_out):
+            print("prepare_docking() not launched", dpf_out, "already exist")
+            self.dpf = dpf_out
+            return
+
+        cmd_grid = os_command.Command([MGLTOOL_PYTHON, PREPARE_DPF,
+                                       "-r", self.rec_pdbqt,
+                                       "-l", self.lig_pdbqt,
+                                       "-o", dpf_out] + option)
+        cmd_grid.display()
+        cmd_grid.run()
+
+        self.dpf = dpf_out
+
+        return
+
+    def run_autodock(self, dock_log, check_file_out=True):
+
+        start_dir = os.path.abspath(".")
+
+        # Create and go in out_folder:
+        # This is necessary for the autogrid creation
+        # Run the autodock in the same directory as the dpf file
+        out_folder = os_command.get_directory(self.dpf)
+        os_command.create_and_go_dir(out_folder)
+
+        # Check if output files exist:
+        if check_file_out and os_command.check_file_and_create_path(dock_log):
+            print("run_autodock() not launched", dock_log, "already exist")
+            self.dock_log = dock_log
+            os.chdir(start_dir)
+            return
+
+        cmd_dock = os_command.Command([AUTODOCK_BIN,
+                                       "-p", self.dpf,
+                                       "-log", dock_log])
+        cmd_dock.display()
+        cmd_dock.run()
+
+        self.dock_log = dock_log
+
+        os.chdir(start_dir)
+
+        return
+
+    def extract_autodock_pdb(self, out_pdb):
+        """
+        Extract pdb models from the the autodock log files.
+        """
+        filout = open(out_pdb, 'w')
+
+        with open(self.dock_log) as pdbfile:
+            for line in pdbfile:
+                if line.startswith("DOCKED: "):
+                    # print(line[8:16].strip())
+                    if line[8:16].strip() in ['ATOM', 'MODEL', 'ENDMDL']:
+                        filout.write(line[8:])
+
+        filout.write("TER\n")
+        filout.close()
+
+        self.dock_pdb = out_pdb
+
         return
 
     def get_npts(self):
@@ -517,16 +649,16 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             if scoring is not None:
                 option += ["--scoring", str(scoring)]
 
-        cmd_top = os_command.Command([DOCK_BIN,
-                                      "--ligand", self.lig_pdbqt,
-                                      "--receptor", self.rec_pdbqt,
-                                      "--log", log,
-                                      "--num_modes", str(num_modes),
-                                      "--exhaustiveness", str(exhaustiveness),
-                                      "--energy_range", str(energy_range),
-                                      "--out", out_pdb] + option)
-        cmd_top.display()
-        cmd_top.run()
+        cmd_dock = os_command.Command([DOCK_BIN,
+                                       "--ligand", self.lig_pdbqt,
+                                       "--receptor", self.rec_pdbqt,
+                                       "--log", log,
+                                       "--num_modes", str(num_modes),
+                                       "--exhaustiveness", str(exhaustiveness),
+                                       "--energy_range", str(energy_range),
+                                       "--out", out_pdb] + option)
+        cmd_dock.display()
+        cmd_dock.run()
 
         self.dock_pdb = out_pdb
         self.dock_log = log
@@ -746,7 +878,7 @@ sele_dict={'chain':['A']})
         *|*|*****|*********
         PVNIIGRNLLTQIGCTLNF
         <BLANKLINE>
-        Succeed to save file .../4yob_rec.pdb
+        Succeed to save file ...4yob_rec.pdb
         >>> coor_holo = pdb_manip.Coor(os.path.join(TEST_PATH, '1hsg.pdb'))\
         #doctest: +ELLIPSIS
         Succeed to read file ...1hsg.pdb ,  1686 atoms found
