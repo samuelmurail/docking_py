@@ -453,24 +453,48 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         return
 
-    def run_autodock(self, dock_log, check_file_out=True):
+    def run_autodock_cpu(self, out_folder, dock_log=None,
+                         dpf_out=None, parameters=None,
+                         check_file_out=True):
 
         start_dir = os.path.abspath(".")
 
-        # Check if output files exist:
-        if check_file_out and os_command.check_file_and_create_path(dock_log):
-            print("run_autodock() not launched", dock_log, "already exist")
-            self.dock_log = dock_log
-            return
+        # Define dpf name
+        if dpf_out is None:
+            dpf_out = self.name + '.dpf'
+
+        # Define dock_log name
+        if dock_log is None:
+            dock_log = self.name + '.dlg'
 
         # Create and go in out_folder:
         # Run the autodock in the same directory as the dock_log file
-        out_folder = os_command.get_directory(dock_log)
-        dock_log = os.path.basename(dock_log)
         os_command.create_and_go_dir(out_folder)
 
+        # Check if output files exist:
+        if (check_file_out and
+                os_command.check_file_and_create_path(dock_log) and
+                os_command.check_file_and_create_path(dpf_out)):
+            print("run_autodock_cpu() not launched", dock_log, "already exist")
+            self.dock_log = dock_log
+            os.chdir(start_dir)
+            return
+
+        # Prepare docking:
+        option = []
+
+        if parameters is not None:
+            option += ['-p', parameters]
+
+        cmd_prep = os_command.Command([MGLTOOL_PYTHON, PREPARE_DPF,
+                                       "-r", self.rec_pdbqt,
+                                       "-l", self.lig_pdbqt,
+                                       "-o", dpf_out] + option)
+        cmd_prep.display()
+        cmd_prep.run()
+
         cmd_dock = os_command.Command([AUTODOCK_BIN,
-                                       "-p", self.dpf,
+                                       "-p", dpf_out,
                                        "-log", dock_log])
         cmd_dock.display()
         cmd_dock.run()
@@ -479,7 +503,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         os.chdir(start_dir)
         return
 
-    def run_autodock_gpu(self, dock_log, check_file_out=True, nrun=10):
+    def run_autodock_gpu(self, out_folder, dock_log=None,
+                         nrun=10, check_file_out=True):
         """
         Autodock GPU arguments:
 
@@ -508,28 +533,32 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         start_dir = os.path.abspath(".")
 
+        # Define dock_log name
+        if dock_log is None:
+            dock_log = self.name + '.dlg'
+
+        # Create and go in out_folder:
+        # Run the autodock in the same directory as the dock_log file
+        os_command.create_and_go_dir(out_folder)
+
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(dock_log):
             print("run_autodock_gpu() not launched", dock_log, "already exist")
             self.dock_log = dock_log
+            os.chdir(start_dir)
             return
 
-        # Create and go in out_folder:
-        # Run the autodock in the same directory as the dock_log file
-        out_folder = os_command.get_directory(dock_log)
-        dock_log = os.path.basename(dock_log)
-        os_command.create_and_go_dir(out_folder)
         self.get_gridfld()
 
         cmd_dock = os_command.Command([AUTODOCK_GPU_BIN,
                                        "-ffile", self.gridfld,
                                        "-lfile", self.lig_pdbqt,
                                        "-nrun", str(nrun),
-                                       "-resnam", dock_log[:-4]])
+                                       "-resnam", dock_log])
         cmd_dock.display()
         cmd_dock.run()
 
-        self.dock_log = dock_log[:-4] + '.dlg'
+        self.dock_log = dock_log
         os.chdir(start_dir)
         return
 
