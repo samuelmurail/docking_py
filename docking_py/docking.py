@@ -543,7 +543,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             for line in pdbfile:
                 if line.startswith("DOCKED: "):
                     # print(line[8:16].strip())
-                    if line[8:16].strip() in ['ATOM', 'HETATM', 'MODEL', 'ENDMDL']:
+                    if line[8:16].strip() in ['ATOM', 'HETATM',
+                                              'MODEL', 'ENDMDL']:
                         filout.write(line[8:])
 
         filout.write("TER\n")
