@@ -358,11 +358,13 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         self.rec_pdbqt = rec_pdbqt
         return
 
-    def prepare_grid(self, out_folder, gpf_out=None, parameters=None,
+    def prepare_grid(self, out_folder, gpf_out=None,
+                     spacing=0.375, grid_npts=None, center=None,
                      check_file_out=True):
         """ Grid preparation
 
         Launch the ``prepare_gpf4.py`` command from MGLToolsPackage.
+        And ``autogrid4``.
 
         """
 
@@ -385,8 +387,14 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Add parameters for prepare_gpf
         option_gpf = []
 
-        if parameters is not None:
-            option_gpf += ['-p', parameters]
+        if spacing != 0.375:
+            option_gpf += ['-p', 'spacing={:.2f}'.format(spacing)]
+
+        if grid_npts is not None:
+            option_gpf += ['-p', 'npts={:d},{:d},{:d}'.format(*grid_npts)]
+
+        if center is not None:
+            option_gpf += ['-p', 'gridcenter={:.2f},{:.2f},{:.2f}'.format(*center)]
 
         cmd_grid = os_command.Command([MGLTOOL_PYTHON, PREPARE_GPF,
                                        "-r", self.rec_pdbqt,
@@ -412,7 +420,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                         check_file_out=True):
         """ Docking preparation
 
-        Launch the ``prepare_gpf4.py`` command from MGLToolsPackage.
+        Launch the ``prepare_dpf4.py`` command from MGLToolsPackage.
 
         """
 
@@ -442,18 +450,17 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         start_dir = os.path.abspath(".")
 
-        # Create and go in out_folder:
-        # This is necessary for the autogrid creation
-        # Run the autodock in the same directory as the dpf file
-        out_folder = os_command.get_directory(self.dpf)
-        os_command.create_and_go_dir(out_folder)
-
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(dock_log):
             print("run_autodock() not launched", dock_log, "already exist")
             self.dock_log = dock_log
-            os.chdir(start_dir)
             return
+
+        # Create and go in out_folder:
+        # Run the autodock in the same directory as the dock_log file
+        out_folder = os_command.get_directory(dock_log)
+        dock_log = os.path.basename(dock_log)
+        os_command.create_and_go_dir(out_folder)
 
         cmd_dock = os_command.Command([AUTODOCK_BIN,
                                        "-p", self.dpf,
@@ -462,9 +469,59 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         cmd_dock.run()
 
         self.dock_log = dock_log
-
         os.chdir(start_dir)
+        return
 
+    def run_autodock_gpu(self, dock_log, check_file_out=True):
+        """
+        Autodock GPU arguments:
+
+        mandatory:
+        -ffile ./input/1stp/derived/1stp_protein.maps.fld
+        -lfile ./input/1stp/derived/1stp_ligand.pdbqt
+
+        opyional:
+        -nrun   # LGA runs  1
+        -nev    # Score evaluations (max.) per LGA run  2500000
+        -ngen   # Generations (max.) per LGA run    27000
+        -lsmet  Local-search method     sw (Solis-Wets)
+        -lsit   # Local-search iterations (max.)    300
+        -psize  Population size     150
+        -mrat   Mutation rate   2 (%)
+        -crat   Crossover rate  80 (%)
+        -lsrat  Local-search rate   6 (%)
+        -trat   Tournament (selection) rate     60 (%)
+        -resnam     Name for docking output log     "docking"
+        -hsym   Handle symmetry in RMSD calc.   1
+        """
+
+        # Autodock part
+        AUTODOCK_GPU_BIN = os_command.which('autodock_gpu_256wi')
+        print("Autodock GPU executable is {}".format(AUTODOCK_GPU_BIN))
+
+        start_dir = os.path.abspath(".")
+
+        # Check if output files exist:
+        if check_file_out and os_command.check_file_and_create_path(dock_log):
+            print("run_autodock_gpu() not launched", dock_log, "already exist")
+            self.dock_log = dock_log
+            return
+
+        # Create and go in out_folder:
+        # Run the autodock in the same directory as the dock_log file
+        out_folder = os_command.get_directory(dock_log)
+        dock_log = os.path.basename(dock_log)
+        os_command.create_and_go_dir(out_folder)
+
+        cmd_dock = os_command.Command([AUTODOCK_GPU_BIN,
+                                       "-ffile", self.dpf,
+                                       "-lfile", self.lig_pdbqt,
+                                       "-resnam", dock_log[:-4]])
+        cmd_dock.display()
+        cmd_dock.run()
+
+        self.dock_log = dock_log
+        os.chdir(start_dir)
         return
 
     def extract_autodock_pdb(self, out_pdb):
@@ -506,15 +563,15 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         """
         rec_com = pdb_manip.Coor(self.rec_pdb)
         self.rec_com = rec_com.center_of_mass()
-        return
+        return self.rec_com
 
-    def rec_grid(self, buffer_space=30):
+    def rec_grid(self, buffer_space=30, spacing=1.0):
         """ Compute grid from the receptor pdb file.
         """
         rec_com = pdb_manip.Coor(self.rec_pdb)
-        self.grid_npts = (np.ceil(rec_com.get_box_dim()) +
+        self.grid_npts = (np.ceil(rec_com.get_box_dim()) / spacing +
                           buffer_space).astype(int)
-        return
+        return self.grid_npts
 
     def run_docking(self, out_pdb, log=None, dock_bin='vina',
                     num_modes=100, energy_range=10, exhaustiveness=16,
