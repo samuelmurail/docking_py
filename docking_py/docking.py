@@ -479,7 +479,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         os.chdir(start_dir)
         return
 
-    def run_autodock_gpu(self, dock_log, check_file_out=True):
+    def run_autodock_gpu(self, dock_log, check_file_out=True, nrun=10):
         """
         Autodock GPU arguments:
 
@@ -524,6 +524,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         cmd_dock = os_command.Command([AUTODOCK_GPU_BIN,
                                        "-ffile", self.gridfld,
                                        "-lfile", self.lig_pdbqt,
+                                       "-nrun", nrun,
                                        "-resnam", dock_log[:-4]])
         cmd_dock.display()
         cmd_dock.run()
