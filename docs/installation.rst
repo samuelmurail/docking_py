@@ -21,7 +21,7 @@ Use `conda en create` to create it using the ``.conda.yml`` file. You can overid
 
     $ conda env create -f .conda.yml
 
-If you use a linux OS and add a GPU cart, you should use the ``autodock-gpu`` version:
+If you use a linux OS and have a GPU card, you could try the ``autodock-gpu`` version:
 
 .. code-block:: console
 

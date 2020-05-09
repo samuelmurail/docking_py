@@ -31,7 +31,7 @@ Features
 
 * Prepare receptors and ligands.
 * Launch docking using:
-    * Autodock
+    * Autodock with or without **GPU** acceleration
     * Vina
     * Smina
     * Qvina2
