@@ -4,6 +4,9 @@ channels:
   - bioconda
   - hcc
 dependencies:
+  - numpy
+  - pdb_manip_py
+  - os_command_py
   - python>=3.5
   - mgltools=1.5.6
   - smina
