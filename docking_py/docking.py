@@ -6,6 +6,7 @@
 
 # standard library
 import os
+from shutil import copy as shutil_copy
 
 # 3rd party packages
 import numpy as np
@@ -394,14 +395,16 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         if grid_npts is None:
             self.rec_grid(spacing=spacing)
             print('Grid points:', self.grid_npts)
-        option_gpf += ['-p', 'npts={:d},{:d},{:d}'.format(*self.grid_npts)]
+            grid_npts = self.grid_npts
+        option_gpf += ['-p', 'npts={:d},{:d},{:d}'.format(*grid_npts)]
 
         # Add grid points
         if center is None:
             self.rec_com()
             print('Center:', self.rec_com)
+            center = self.rec_com
         option_gpf += ['-p', 'gridcenter={:.2f},{:.2f},{:.2f}'.format(
-            *self.rec_com)]
+            *center)]
 
         cmd_grid = os_command.Command([MGLTOOL_PYTHON, PREPARE_GPF,
                                        "-r", self.rec_pdbqt,
@@ -409,6 +412,15 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                                        "-o", gpf_out] + option_gpf)
         cmd_grid.display()
         cmd_grid.run()
+
+        # The rec.pdbqt should be in the same directory as gpf_out:
+        if os.path.abspath(
+                os.path.dirname(self.rec_pdbqt)) != os.path.abspath("."):
+            shutil_copy(self.rec_pdbqt, os.path.abspath("."))
+        # The lig.pdbqt should be in the same directory as gpf_out:
+        if os.path.abspath(
+                os.path.dirname(self.lig_pdbqt)) != os.path.abspath("."):
+            shutil_copy(self.lig_pdbqt, os.path.abspath("."))
 
         grid_log = gpf_out[:-4] + '.log'
         cmd_autogrid = os_command.Command([AUTOGRID_BIN,
@@ -423,49 +435,25 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         return
 
-    def prepare_docking(self, dpf_out, parameters=None,
-                        check_file_out=True):
-        """ Docking preparation
-
-        Launch the ``prepare_dpf4.py`` command from MGLToolsPackage.
-
-        """
-
-        option = []
-
-        if parameters is not None:
-            option += ['-p', parameters]
-
-        # Check if output files exist:
-        if check_file_out and os_command.check_file_and_create_path(dpf_out):
-            print("prepare_docking() not launched", dpf_out, "already exist")
-            self.dpf = dpf_out
-            return
-
-        cmd_grid = os_command.Command([MGLTOOL_PYTHON, PREPARE_DPF,
-                                       "-r", self.rec_pdbqt,
-                                       "-l", self.lig_pdbqt,
-                                       "-o", dpf_out] + option)
-        cmd_grid.display()
-        cmd_grid.run()
-
-        self.dpf = dpf_out
-
-        return
-
-    def run_autodock_cpu(self, out_folder, dock_log=None,
+    def run_autodock_cpu(self, out_folder, dock_log=None, dock_pdb=None,
                          dpf_out=None, nrun=10, param_list=[],
                          check_file_out=True):
+        """
+        1. Launch the ``prepare_dpf4.py`` command from MGLToolsPackage.
+        2. Launch ``autodock4``
+        """
 
         start_dir = os.path.abspath(".")
 
         # Define dpf name
         if dpf_out is None:
             dpf_out = self.name + '.dpf'
-
         # Define dock_log name
         if dock_log is None:
             dock_log = self.name + '.dlg'
+        # Define dock_pdb name
+        if dock_pdb is None:
+            dock_pdb = self.name + '.pdb'
 
         # Create and go in out_folder:
         # Run the autodock in the same directory as the dock_log file
@@ -477,6 +465,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                 os_command.check_file_and_create_path(dpf_out)):
             print("run_autodock_cpu() not launched", dock_log, "already exist")
             self.dock_log = dock_log
+            self.dock_pdb = dock_pdb
             os.chdir(start_dir)
             return
 
@@ -494,6 +483,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         cmd_prep.display()
         cmd_prep.run()
 
+        # Run autodock
         cmd_dock = os_command.Command([AUTODOCK_BIN,
                                        "-p", dpf_out,
                                        "-log", dock_log])
@@ -501,10 +491,14 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         cmd_dock.run()
 
         self.dock_log = dock_log
+        # Exract pdb form the log file:
+        self.extract_autodock_pdb(dock_pdb)
+        self.dock_pdb = dock_pdb
+
         os.chdir(start_dir)
         return
 
-    def run_autodock_gpu(self, out_folder, dock_log=None,
+    def run_autodock_gpu(self, out_folder, dock_log=None, dock_pdb=None,
                          nrun=10, check_file_out=True):
         """
         Autodock GPU arguments:
@@ -537,6 +531,9 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Define dock_log name
         if dock_log is None:
             dock_log = self.name + '.dlg'
+        # Define dock_pdb name
+        if dock_pdb is None:
+            dock_pdb = self.name + '.pdb'
 
         # Create and go in out_folder:
         # Run the autodock in the same directory as the dock_log file
@@ -546,6 +543,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         if check_file_out and os_command.check_file_and_create_path(dock_log):
             print("run_autodock_gpu() not launched", dock_log, "already exist")
             self.dock_log = dock_log
+            self.dock_pdb = dock_pdb
             os.chdir(start_dir)
             return
 
@@ -560,6 +558,10 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         cmd_dock.run()
 
         self.dock_log = dock_log
+        # Exract pdb form the log file:
+        self.extract_autodock_pdb(dock_pdb)
+        self.dock_pdb = dock_pdb
+
         os.chdir(start_dir)
         return
 
@@ -632,14 +634,26 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
     def rec_com(self):
         """ Get center of mass of the receptor pdb file.
         """
-        rec_com = pdb_manip.Coor(self.rec_pdb)
+        if self.rec_pdb is not None:
+            rec_com = pdb_manip.Coor(self.rec_pdb)
+        elif self.rec_pdbqt is not None:
+            rec_com = pdb_manip.Coor(self.rec_pdbqt)
+        else:
+            raise IOError("No receptor file defined")
+
         self.rec_com = rec_com.center_of_mass()
         return self.rec_com
 
     def rec_grid(self, buffer_space=30, spacing=1.0):
         """ Compute grid from the receptor pdb file.
         """
-        rec_com = pdb_manip.Coor(self.rec_pdb)
+        if self.rec_pdb is not None:
+            rec_com = pdb_manip.Coor(self.rec_pdb)
+        elif self.rec_pdbqt is not None:
+            rec_com = pdb_manip.Coor(self.rec_pdbqt)
+        else:
+            raise IOError("No receptor file defined")
+
         self.grid_npts = (np.ceil(rec_com.get_box_dim()) / spacing +
                           buffer_space).astype(int)
         return self.grid_npts

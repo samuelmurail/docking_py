@@ -232,3 +232,55 @@ def test_vina_rigid(tmp_path, capsys):
     affinity = test_dock.extract_affinity()
     assert len(affinity) >= 1
     assert affinity[1]['affinity'] < -10
+
+
+def test_autodock_rigid(tmp_path, capsys):
+
+    # Convert to str to avoid problem with python 3.5
+    TEST_OUT = str(tmp_path)
+
+    # Extract center and max_sizer:
+    lig_coor = pdb_manip.Coor(os.path.join(TEST_PATH, 'lig.pdbqt'))
+
+    center_lig = lig_coor.center_of_mass()
+    max_size = lig_coor.get_max_size()
+    print("Center coordinates is {:.1f} {:.1f} {:.1f}, maximum dimension"
+          " is {:.1f} Å".format(*center_lig, max_size))
+
+    captured = capsys.readouterr()
+    assert bool(re.match('Succeed to read file .+/input/lig.pdbqt ,  50 '
+                         'atoms found\nDo a rotation of 99.71°\nCenter '
+                         'coordinates is 13.1 22.5 5.5, maximum dimension is '
+                         '18.0 Å\n',
+                captured.out))
+
+    # Create Docking object
+    test_dock = docking.Docking(
+        name='test_autodock',
+        rec_pdbqt=os.path.join(TEST_PATH, 'rec.pdbqt'),
+        lig_pdbqt=os.path.join(TEST_PATH, 'lig.pdbqt'))
+
+    # Prepare Grid
+    spacing = 0.375
+    test_dock.prepare_grid(out_folder=TEST_OUT, spacing=spacing,
+                           center=center_lig,
+                           grid_npts=[int(max_size / spacing)] * 3)
+
+    captured = capsys.readouterr()
+    assert bool(re.match(
+        ("python2.5 .+prepare_gpf4.py -r .+rec.pdbqt -l .+lig.pdbqt -o "
+         "test_autodock.gpf -p npts=48,48,48 -p "
+         "gridcenter=13.08,22.52,5.54\nautogrid4 -p test_autodock.gpf -l "
+         "test_autodock.log"),
+        captured.out))
+
+    test_dock.run_autodock(out_folder=TEST_OUT, nrun=1)
+
+    rmsd_list = test_dock.compute_dock_rmsd(test_dock.lig_pdbqt)
+    assert len(rmsd_list) >= 1
+    assert rmsd_list[0] < 15
+
+    # TO add when it is done !!
+    # affinity = test_dock.extract_affinity()
+    # assert len(affinity) >= 1
+    # assert affinity[1]['affinity'] < -10
