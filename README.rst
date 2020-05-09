@@ -7,16 +7,17 @@ Docking Python
     :target: https://travis-ci.org/samuelmurail/docking_py
 
 .. image:: https://readthedocs.org/projects/docking-py/badge/?version=latest
-        :target: https://docking-py.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
+    :target: https://docking-py.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 .. image:: https://codecov.io/gh/samuelmurail/docking_py/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/samuelmurail/docking_py
 
 .. image:: https://badge.fury.io/py/docking-py.svg
-   :target: https://badge.fury.io/py/docking-py
+    :target: https://badge.fury.io/py/docking-py
 
-
+.. image:: https://anaconda.org/bioconda/docking_py/badges/version.svg
+    :target: https://anaconda.org/bioconda/docking_py
 
 Docking_py is a python library allowing a simplified use of the Smina, vina, qvina2 and qvinaw docking software. Docking_py can be easily automatize and scripted.
 
@@ -30,10 +31,11 @@ Features
 
 * Prepare receptors and ligands.
 * Launch docking using:
-    * vina
-    * smina
-    * qvina2
-    * qvinaw
+    * Autodock
+    * Vina
+    * Smina
+    * Qvina2
+    * Qvinaw
 
 Credits
 -------
