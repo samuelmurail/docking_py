@@ -454,7 +454,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         return
 
     def run_autodock_cpu(self, out_folder, dock_log=None,
-                         dpf_out=None, parameters=None,
+                         dpf_out=None, nrun=10, param_list=[],
                          check_file_out=True):
 
         start_dir = os.path.abspath(".")
@@ -482,9 +482,10 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Prepare docking:
         option = []
+        option += ['-p', 'ga_run={:d}'.format(nrun)]
 
-        if parameters is not None:
-            option += ['-p', parameters]
+        for parameter in param_list:
+            option += ['-p', parameter]
 
         cmd_prep = os_command.Command([MGLTOOL_PYTHON, PREPARE_DPF,
                                        "-r", self.rec_pdbqt,
@@ -554,13 +555,31 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                                        "-ffile", self.gridfld,
                                        "-lfile", self.lig_pdbqt,
                                        "-nrun", str(nrun),
-                                       "-resnam", dock_log])
+                                       "-resnam", dock_log[:-4]])
         cmd_dock.display()
         cmd_dock.run()
 
         self.dock_log = dock_log
         os.chdir(start_dir)
         return
+
+    def run_autodock(self, out_folder, dock_log=None,
+                     nrun=10, check_file_out=True):
+        """
+        Run autodock with cpu or gpu if available
+
+        """
+
+        try:
+            AUTODOCK_GPU_BIN = os_command.which('autodock_gpu_256wi')
+            print("Autodock GPU executable is {}".format(AUTODOCK_GPU_BIN))
+            print("Run Autodock GPU:")
+            self.run_autodock_gpu(out_folder=out_folder, dock_log=dock_log,
+                                  nrun=nrun, check_file_out=check_file_out)
+        except IOError:
+            print("Run Autodock CPU:")
+            self.run_autodock_cpu(out_folder=out_folder, dock_log=dock_log,
+                                  nrun=nrun, check_file_out=check_file_out)
 
     def extract_autodock_pdb(self, out_pdb):
         """
