@@ -223,7 +223,8 @@ class Docking:
             self._dock_log = None
 
     def prepare_ligand(self, lig_pdbqt=None, rigid=False,
-                       center=False, check_file_out=True):
+                       center=False, random_rot=False,
+                       check_file_out=True):
         """ Ligand preparation to `pdbqt` format using the `prepare_ligand4.py`
         command.
         Can center the ligand, could be usefull with autodock (issues when
@@ -287,18 +288,27 @@ class Docking:
         if rigid:
             option.append('-Z')
 
+        # Define reference pdb for ligand
+        self.ref_lig_pdb = self.lig_pdb
+
+        # Add random rot:
+        if random_rot:
+            lig_coor = pdb_manip.Coor(self.lig_pdb)
+            tau_x, tau_y, tau_z = np.random.random_sample((3,)) * 360
+            lig_coor.rotation_angle(tau_x, tau_y, tau_z)
+            lig_coor.write_pdb(self.lig_pdb[:-4] + '_rot.pdb')
+            self.lig_pdb = self.lig_pdb[:-4] + '_rot.pdb'
+
         # center ligand coordinates
         if center:
             lig_coor = pdb_manip.Coor(self.lig_pdb)
             lig_com = lig_coor.center_of_mass()
             lig_coor.translate(-lig_com)
             lig_coor.write_pdb(self.lig_pdb[:-4] + '_center.pdb')
-            ligand_pdb = self.lig_pdb[:-4] + '_center.pdb'
-        else:
-            ligand_pdb = self.lig_pdb
+            self.lig_pdb = self.lig_pdb[:-4] + '_center.pdb'
 
         cmd_lig = os_command.Command([MGLTOOL_PYTHON, PREPARE_LIG,
-                                      "-l", ligand_pdb,
+                                      "-l", self.lig_pdb,
                                       "-B", 'none',
                                       "-A", 'hydrogens',
                                       "-o", lig_pdbqt] + option)
@@ -1020,7 +1030,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         return
 
-    def align_receptor(self, ref_pdb, sele_dict={}):
+    def align_receptor(self, ref_pdb, chain_ref=['A'], chain_rec=['A']):
         """
         Align self.rec_pdb to ref_pdb.
 
@@ -1033,8 +1043,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         #doctest: +ELLIPSIS
         Succeed to read file ...4yob.pdb ,  916 atoms found
         Succeed to save file ...4yob_rec.pdb
-        >>> dock_4yob.align_receptor(os.path.join(TEST_PATH, '1hsg.pdb'),\
-sele_dict={'chain':['A']})
+        >>> dock_4yob.align_receptor(os.path.join(TEST_PATH, '1hsg.pdb'))
         Succeed to read file .../4yob_rec.pdb ,  760 atoms found
         Succeed to read file .../1hsg.pdb ,  1686 atoms found
         PQITLWKRPIVTIKIGGQLKEALLNTGADDTVFEEVNLPGRWKPKLIGGIGGFVKVRQYDQVPIEICGHKVIGTVLVGPT
@@ -1064,7 +1073,6 @@ sele_dict={'chain':['A']})
         # Read ref_pdb
         ref_coor = pdb_manip.Coor(ref_pdb)
         # Keep only amino acid
-        aa_ref_coor = ref_coor.select_part_dict(sele_dict)
         aa_ref_coor = ref_coor.select_part_dict(
             selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Remove alter_loc B, C, D
@@ -1072,7 +1080,7 @@ sele_dict={'chain':['A']})
             {'alter_loc': ['B', 'C', 'D']})
         aa_ref_coor.del_atom_index(index_list=alter_loc_bcd)
 
-        rec_coor.align_seq_coor_to(aa_ref_coor)
+        rec_coor.align_seq_coor_to(aa_ref_coor, chain_1=chain_rec, chain_2=chain_ref)
         rec_coor.write_pdb(self.rec_pdb, check_file_out=False)
 
         return
