@@ -226,8 +226,8 @@ class Docking:
                        center=False, check_file_out=True):
         """ Ligand preparation to `pdbqt` format using the `prepare_ligand4.py`
         command.
-        Can center the ligand, could be usefull with autodock (issues when x,y,z
-        > 100 Å).
+        Can center the ligand, could be usefull with autodock (issues when
+        x,y,z > 100 Å).
 
         :param lig_pdbqt: output name
         :type lig_pdbqt: str, optional, default=None
@@ -615,9 +615,10 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                         filout.write(line[8:])
                         if line[8:16].strip() == 'MODEL':
                             model = int(line[20:])
-                    if line.startswith("DOCKED: USER    Estimated Free Energy of Binding    ="):
-                            affinity = float(line.split()[8])
-                            mode_info_dict[model] = {'affinity': affinity}
+                    if line.startswith("DOCKED: USER    Estimated Free"
+                                       " Energy of Binding    ="):
+                        affinity = float(line.split()[8])
+                        mode_info_dict[model] = {'affinity': affinity}
 
         filout.write("TER\n")
         filout.close()
