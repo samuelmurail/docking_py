@@ -908,7 +908,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         return mode_info_dict
 
     def extract_lig_rec_pdb(self, coor_in, folder_out, rec_select_dict,
-                            lig_select_dict, random_rot=True):
+                            lig_select_dict):
         """
         * Extract receptor and ligand coordinates from a coor file
         * remove alternative location
@@ -925,9 +925,6 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         :param lig_chain: Chain(s) of the ligand
         :type lig_chain: list of str
 
-        :param random_rot: Flag for random rotation of ligand
-        :type random_rot: bool, optional, default=True
-
         **Object field(s) changed:**
 
             * self.rec_pdb
@@ -942,7 +939,6 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         #doctest: +ELLIPSIS
         Succeed to read file ...1hsg.pdb ,  1686 atoms found
         Succeed to save file ...1hsg_rec.pdb
-        Succeed to save file ...1hsg_lig.pdb
         Succeed to save file ...1hsg_input_lig.pdb
         >>> coor_lig = pdb_manip.Coor(dock_1hsg.lig_pdb) #doctest: +ELLIPSIS
         Succeed to read file ...1hsg_input_lig.pdb ,  45 atoms found
@@ -968,18 +964,10 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         self.rec_pdb = out_rec
 
         # Extract ligand pdb
-        out_ref_lig = os.path.join(folder_out, '{}_lig.pdb'.format(self.name))
-        lig_coor = comp_coor.select_part_dict(
-            lig_select_dict)
-        lig_coor.write_pdb(out_ref_lig)
-        self.ref_lig_pdb = out_ref_lig
-
-        # Add random rotation
         out_lig = os.path.join(folder_out,
                                '{}_input_lig.pdb'.format(self.name))
-        if random_rot:
-            tau_x, tau_y, tau_z = np.random.random_sample((3,)) * 360
-            lig_coor.rotation_angle(tau_x, tau_y, tau_z)
+        lig_coor = comp_coor.select_part_dict(
+            lig_select_dict)
         lig_coor.write_pdb(out_lig)
         self.lig_pdb = out_lig
 
