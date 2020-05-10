@@ -421,6 +421,17 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             self.rec_grid(spacing=spacing)
             print('Grid points:', self.grid_npts)
             grid_npts = self.grid_npts
+
+        # Check that not point are above 255
+        # Issues have been revaled with autodock gpu with more points
+        clean_npts = []
+        for point in grid_npts:
+            if point > 255:
+                print('Warning: each dimension of the grid must be below 256.')
+                clean_npts.append(255)
+            else:
+                clean_npts.append(point)
+
         option_gpf += ['-p', 'npts={:d},{:d},{:d}'.format(*grid_npts)]
 
         # Add grid points
@@ -1080,7 +1091,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             {'alter_loc': ['B', 'C', 'D']})
         aa_ref_coor.del_atom_index(index_list=alter_loc_bcd)
 
-        rec_coor.align_seq_coor_to(aa_ref_coor, chain_1=chain_rec, chain_2=chain_ref)
+        rec_coor.align_seq_coor_to(aa_ref_coor, chain_1=chain_rec,
+                                   chain_2=chain_ref)
         rec_coor.write_pdb(self.rec_pdb, check_file_out=False)
 
         return
