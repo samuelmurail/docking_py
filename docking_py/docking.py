@@ -223,15 +223,20 @@ class Docking:
             self._dock_log = None
 
     def prepare_ligand(self, lig_pdbqt=None, rigid=False,
-                       check_file_out=True):
+                       center=False, check_file_out=True):
         """ Ligand preparation to `pdbqt` format using the `prepare_ligand4.py`
         command.
+        Can center the ligand, could be usefull with autodock (issues when x,y,z
+        > 100 Å).
 
         :param lig_pdbqt: output name
         :type lig_pdbqt: str, optional, default=None
 
         :param rigid: Flag to define if ligand is rigid
         :type rigid: bool, optional, default=False
+
+        :param center: Flag to define if ligand have to centered
+        :type center: bool, optional, default=False
 
         :param check_file_out: flag to check or not if file has already
             been created. If the file is present then the command break.
@@ -282,8 +287,18 @@ class Docking:
         if rigid:
             option.append('-Z')
 
+        # center ligand coordinates
+        if center:
+            lig_coor = pdb_manip.Coor(self.lig_pdb)
+            lig_com = lig_coor.center_of_mass()
+            lig_coor.translate(-lig_com)
+            lig_coor.write_pdb(self.lig_pdb[:-4] + '_center.pdb')
+            ligand_pdb = self.lig_pdb[:-4] + '_center.pdb'
+        else:
+            ligand_pdb = self.lig_pdb
+
         cmd_lig = os_command.Command([MGLTOOL_PYTHON, PREPARE_LIG,
-                                      "-l", self._lig_pdb,
+                                      "-l", ligand_pdb,
                                       "-B", 'none',
                                       "-A", 'hydrogens',
                                       "-o", lig_pdbqt] + option)
@@ -466,6 +481,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             print("run_autodock_cpu() not launched", dock_log, "already exist")
             self.dock_log = dock_log
             self.dock_pdb = dock_pdb
+            self.extract_autodock_pdb_affinity(dock_pdb)
             os.chdir(start_dir)
             return
 
@@ -492,8 +508,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         self.dock_log = dock_log
         # Exract pdb form the log file:
-        self.extract_autodock_pdb(dock_pdb)
-        self.dock_pdb = dock_pdb
+        self.extract_autodock_pdb_affinity(dock_pdb)
 
         os.chdir(start_dir)
         return
@@ -544,6 +559,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             print("run_autodock_gpu() not launched", dock_log, "already exist")
             self.dock_log = dock_log
             self.dock_pdb = dock_pdb
+            self.extract_autodock_pdb_affinity(dock_pdb)
             os.chdir(start_dir)
             return
 
@@ -559,8 +575,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         self.dock_log = dock_log
         # Exract pdb form the log file:
-        self.extract_autodock_pdb(dock_pdb)
-        self.dock_pdb = dock_pdb
+        self.extract_autodock_pdb_affinity(dock_pdb)
 
         os.chdir(start_dir)
         return
@@ -583,11 +598,13 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             self.run_autodock_cpu(out_folder=out_folder, dock_log=dock_log,
                                   nrun=nrun, check_file_out=check_file_out)
 
-    def extract_autodock_pdb(self, out_pdb):
+    def extract_autodock_pdb_affinity(self, out_pdb):
         """
         Extract pdb models from the the autodock log files.
         """
         filout = open(out_pdb, 'w')
+
+        mode_info_dict = {}
 
         with open(self.dock_log) as pdbfile:
             for line in pdbfile:
@@ -596,11 +613,17 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                     if line[8:16].strip() in ['ATOM', 'HETATM',
                                               'MODEL', 'ENDMDL']:
                         filout.write(line[8:])
+                        if line[8:16].strip() == 'MODEL':
+                            model = int(line[20:])
+                    if line.startswith("DOCKED: USER    Estimated Free Energy of Binding    ="):
+                            affinity = float(line.split()[8])
+                            mode_info_dict[model] = {'affinity': affinity}
 
         filout.write("TER\n")
         filout.close()
 
         self.dock_pdb = out_pdb
+        self.affinity = mode_info_dict
 
         return
 
@@ -858,6 +881,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                         'affinity': float(line_split[1]),
                         'rmsd_low': float(line_split[2]),
                         'rmsd_high': float(line_split[3])}
+
+        self.affinity = mode_info_dict
         return mode_info_dict
 
     def extract_lig_rec_pdb(self, coor_in, folder_out, rec_select_dict,
