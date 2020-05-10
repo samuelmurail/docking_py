@@ -281,6 +281,11 @@ class Docking:
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(lig_pdbqt):
             print("prepare_ligand() not launched", lig_pdbqt, "already exist")
+            self.ref_lig_pdb = self.lig_pdb
+            if random_rot:
+                self.lig_pdb = self.lig_pdb[:-4] + '_rot.pdb'
+            if center:
+                self.lig_pdb = self.lig_pdb[:-4] + '_center.pdb'
             self.lig_pdbqt = lig_pdbqt
             return
 
