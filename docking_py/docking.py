@@ -432,7 +432,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             else:
                 clean_npts.append(point)
 
-        option_gpf += ['-p', 'npts={:d},{:d},{:d}'.format(*grid_npts)]
+        option_gpf += ['-p', 'npts={:d},{:d},{:d}'.format(*clean_npts)]
 
         # Add grid points
         if center is None:
