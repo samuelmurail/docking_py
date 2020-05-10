@@ -678,8 +678,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         else:
             raise IOError("No receptor file defined")
 
-        self.grid_npts = (np.ceil(rec_com.get_box_dim()) / spacing +
-                          buffer_space).astype(int)
+        self.grid_npts = ((np.ceil(rec_com.get_box_dim()) +
+                          buffer_space) / spacing).astype(int)
         return self.grid_npts
 
     def run_docking(self, out_pdb, log=None, dock_bin='vina',
