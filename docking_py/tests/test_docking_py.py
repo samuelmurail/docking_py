@@ -10,6 +10,7 @@ import re
 from docking_py import docking
 from pdb_manip_py import pdb_manip
 
+
 # Test folder path
 LIB_DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_PATH = os.path.join(LIB_DIR, "./input/")
@@ -35,6 +36,9 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
 
     # Convert to str to avoid problem with python 3.5
     TEST_OUT = str(tmp_path)
+
+    # Redirect pdb_manip logs
+    pdb_manip.show_log()
 
     # Read 1hsg.pdb, extract lig.pdb and rec.pdb
     coor_1hsg = pdb_manip.Coor(os.path.join(TEST_PATH, '1hsg.pdb'))
@@ -125,6 +129,9 @@ def test_smina_rigid(tmp_path, capsys):
     # Convert to str to avoid problem with python 3.5
     TEST_OUT = str(tmp_path)
 
+    # Redirect pdb_manip logs
+    pdb_manip.show_log()
+
     # Extract center and max_sizer:
     lig_coor = pdb_manip.Coor(os.path.join(TEST_PATH, 'lig.pdbqt'))
 
@@ -182,6 +189,9 @@ def test_vina_rigid(tmp_path, capsys):
     # Convert to str to avoid problem with python 3.5
     TEST_OUT = str(tmp_path)
 
+    # Redirect pdb_manip logs
+    pdb_manip.show_log()
+
     # Extract center and max_sizer:
     lig_coor = pdb_manip.Coor(os.path.join(TEST_PATH, 'lig.pdbqt'))
 
@@ -238,6 +248,9 @@ def test_autodock_rigid(tmp_path, capsys):
 
     # Convert to str to avoid problem with python 3.5
     TEST_OUT = str(tmp_path)
+
+    # Redirect pdb_manip logs
+    pdb_manip.show_log()
 
     # Extract center and max_sizer:
     lig_coor = pdb_manip.Coor(os.path.join(TEST_PATH, 'lig.pdbqt'))

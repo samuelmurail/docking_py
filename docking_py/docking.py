@@ -1041,6 +1041,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         :Example:
 
+        >>> pdb_manip.show_log()
         >>> TEST_OUT = str(getfixture('tmpdir'))
         >>> dock_4yob = Docking(name='4yob')
         >>> dock_4yob.extract_receptor(os.path.join(TEST_PATH, '4yob.pdb'),\
