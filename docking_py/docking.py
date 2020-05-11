@@ -432,7 +432,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         clean_npts = []
         for point in grid_npts:
             if point > 255:
-                print('Warning: each dimension of the grid must be below 256.')
+                print('\n\nWARNING ! Each dimension of the grid must be'
+                      ' below 256. You should rise spacing !\n\n')
                 clean_npts.append(255)
             else:
                 clean_npts.append(point)
@@ -488,13 +489,13 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Define dpf name
         if dpf_out is None:
-            dpf_out = self.name + '.dpf'
+            dpf_out = self.name + '_dock_param.dpf'
         # Define dock_log name
         if dock_log is None:
-            dock_log = self.name + '.dlg'
+            dock_log = self.name + '_dock_log.dlg'
         # Define dock_pdb name
         if dock_pdb is None:
-            dock_pdb = self.name + '.pdb'
+            dock_pdb = self.name + '_dock.pdb'
 
         # Create and go in out_folder:
         # Run the autodock in the same directory as the dock_log file
@@ -571,10 +572,10 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Define dock_log name
         if dock_log is None:
-            dock_log = self.name + '.dlg'
+            dock_log = self.name + '_dock_log.dlg'
         # Define dock_pdb name
         if dock_pdb is None:
-            dock_pdb = self.name + '.pdb'
+            dock_pdb = self.name + '_dock.pdb'
 
         # Create and go in out_folder:
         # Run the autodock in the same directory as the dock_log file
