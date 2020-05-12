@@ -299,7 +299,8 @@ class Docking:
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(lig_pdbqt):
-            logger.info("prepare_ligand() not launched {} already exist".format(lig_pdbqt))
+            logger.info("prepare_ligand() not launched {} already"
+                        " exist".format(lig_pdbqt))
             self.ref_lig_pdb = self.lig_pdb
             if random_rot:
                 self.lig_pdb = self.lig_pdb[:-4] + '_rot.pdb'
@@ -637,7 +638,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         try:
             AUTODOCK_GPU_BIN = os_command.which('autodock_gpu_256wi')
-            logger.info("Autodock GPU executable is {}".format(AUTODOCK_GPU_BIN))
+            logger.info("Autodock GPU executable is {}".format(
+                AUTODOCK_GPU_BIN))
             logger.info("Run Autodock GPU:")
             self.run_autodock_gpu(out_folder=out_folder, dock_log=dock_log,
                                   nrun=nrun, check_file_out=check_file_out)
@@ -814,7 +816,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(out_pdb):
-            logger.info("vina_docking() not launched", out_pdb, "already exist")
+            logger.info("vina_docking() not launched {} already"
+                        " exist".format(out_pdb))
             self.dock_pdb = out_pdb
             self.dock_log = log
             return
