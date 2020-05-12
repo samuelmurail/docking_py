@@ -6,6 +6,8 @@
 
 # standard library
 import os
+import sys
+import logging
 from shutil import copy as shutil_copy
 
 # 3rd party packages
@@ -13,12 +15,29 @@ import numpy as np
 from os_command_py import os_command
 from pdb_manip_py import pdb_manip
 
+# Logging
+logger = logging.getLogger(__name__)
+
+
+def show_log():
+    """ To use only with Doctest !!!
+    Redirect logger output to sys.stdout
+    """
+    # Delete all handlers
+    logger.handlers = []
+    # Set the logger level to INFO
+    logger.setLevel(logging.INFO)
+    # Add sys.sdout as handler
+    logger.addHandler(logging.StreamHandler(sys.stdout))
+    # Show pdb_manip Logs:
+    pdb_manip.show_log()
+
 
 # Get Path of excecutables
 # Check if Readthedoc is launched skip the program path searching
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
-    print('Smina cannot be found')
+    logger.info('Smina cannot be found')
     SMINA_LIG = ''
     SMINA_REC = ''
     SMINA_GPF = ''
@@ -26,23 +45,23 @@ if on_rtd:
 else:
 
     SMINA_BIN = os_command.which('smina')
-    print("Smina executable is {}".format(SMINA_BIN))
+    logger.info("Smina executable is {}".format(SMINA_BIN))
 
     VINA_BIN = os_command.which('vina')
-    print("Vina executable is {}".format(VINA_BIN))
+    logger.info("Vina executable is {}".format(VINA_BIN))
 
     QVINA_BIN = os_command.which('qvina2')
-    print("Vina executable is {}".format(VINA_BIN))
+    logger.info("Vina executable is {}".format(VINA_BIN))
 
     QVINAW_BIN = os_command.which('qvinaw')
-    print("Vina executable is {}".format(VINA_BIN))
+    logger.info("Vina executable is {}".format(VINA_BIN))
 
     # MGLTools scripts:
 
     PREPARE_LIG = os_command.which('prepare_ligand4.py')
-    print("MGLTools ligand script is {}".format(PREPARE_LIG))
+    logger.info("MGLTools ligand script is {}".format(PREPARE_LIG))
     PREPARE_REC = os_command.which('prepare_receptor4.py')
-    print("MGLTools receptor script is {}".format(PREPARE_REC))
+    logger.info("MGLTools receptor script is {}".format(PREPARE_REC))
 
     # Find python 2 from conda env
     CONDA_PREFIX = os.getenv('CONDA_PREFIX')
@@ -51,24 +70,24 @@ else:
         CONDA_PREFIX = '/'.join(PREPARE_REC.split('/')[:-2])
 
     MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.5')
-    print("Python Smina is {}".format(MGLTOOL_PYTHON))
+    logger.info("Python Smina is {}".format(MGLTOOL_PYTHON))
 
     PREPARE_GPF = os.path.join(
         CONDA_PREFIX,
         'MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py')
-    print("MGLTools grid script is {}".format(PREPARE_GPF))
+    logger.info("MGLTools grid script is {}".format(PREPARE_GPF))
 
     PREPARE_DPF = os.path.join(
         CONDA_PREFIX,
         'MGLToolsPckgs/AutoDockTools/Utilities24/prepare_dpf42.py')
-    print("MGLTools docking prepare script is {}".format(PREPARE_DPF))
+    logger.info("MGLTools docking prepare script is {}".format(PREPARE_DPF))
 
     # Autodock part
     AUTOGRID_BIN = os_command.which('autogrid4')
-    print("Autogrid4 executable is {}".format(AUTOGRID_BIN))
+    logger.info("Autogrid4 executable is {}".format(AUTOGRID_BIN))
 
     AUTODOCK_BIN = os_command.which('autodock4')
-    print("Autodock4 executable is {}".format(AUTODOCK_BIN))
+    logger.info("Autodock4 executable is {}".format(AUTODOCK_BIN))
 
 
 # Test folder path
@@ -280,7 +299,7 @@ class Docking:
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(lig_pdbqt):
-            print("prepare_ligand() not launched", lig_pdbqt, "already exist")
+            logger.info("prepare_ligand() not launched {} already exist".format(lig_pdbqt))
             self.ref_lig_pdb = self.lig_pdb
             if random_rot:
                 self.lig_pdb = self.lig_pdb[:-4] + '_rot.pdb'
@@ -372,9 +391,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(rec_pdbqt):
-            print("prepare_receptor() not launched",
-                  rec_pdbqt,
-                  "already exist")
+            logger.info("prepare_receptor() not launched {} "
+                        "already exist".format(rec_pdbqt))
 
             self.rec_pdbqt = rec_pdbqt
             return
@@ -410,7 +428,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(gpf_out):
-            print("prepare_grid() not launched", gpf_out, "already exist")
+            logger.info("prepare_grid() not launched {} "
+                        "already exist".format(gpf_out))
             self.gpf = gpf_out
             os.chdir(start_dir)
             return
@@ -424,7 +443,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Add grid points
         if grid_npts is None:
             self.rec_grid(spacing=spacing)
-            print('Grid points:', self.grid_npts)
+            logger.info('Grid points: {}'.format(self.grid_npts))
             grid_npts = self.grid_npts
 
         # Check that not point are above 255
@@ -432,8 +451,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         clean_npts = []
         for point in grid_npts:
             if point > 255:
-                print('\n\nWARNING ! Each dimension of the grid must be'
-                      ' below 256. You should rise spacing !\n\n')
+                logger.warning('WARNING ! Each dimension of the grid must be'
+                               ' below 256. You should rise spacing !')
                 clean_npts.append(255)
             else:
                 clean_npts.append(point)
@@ -443,7 +462,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Add grid points
         if center is None:
             self.rec_com()
-            print('Center:', self.rec_com)
+            logger.info('Center: {}'.format(self.rec_com))
             center = self.rec_com
         option_gpf += ['-p', 'gridcenter={:.2f},{:.2f},{:.2f}'.format(
             *center)]
@@ -505,7 +524,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         if (check_file_out and
                 os_command.check_file_and_create_path(dock_log) and
                 os_command.check_file_and_create_path(dpf_out)):
-            print("run_autodock_cpu() not launched", dock_log, "already exist")
+            logger.info("run_autodock_cpu() not launched {} "
+                        "already exist".format(dock_log))
             self.dock_log = dock_log
             self.dock_pdb = dock_pdb
             self.extract_autodock_pdb_affinity(dock_pdb)
@@ -566,7 +586,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Autodock part
         AUTODOCK_GPU_BIN = os_command.which('autodock_gpu_256wi')
-        print("Autodock GPU executable is {}".format(AUTODOCK_GPU_BIN))
+        logger.info("Autodock GPU executable is {}".format(AUTODOCK_GPU_BIN))
 
         start_dir = os.path.abspath(".")
 
@@ -583,7 +603,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(dock_log):
-            print("run_autodock_gpu() not launched", dock_log, "already exist")
+            logger.info("run_autodock_gpu() not launched {} "
+                        "already exist".format(dock_log))
             self.dock_log = dock_log
             self.dock_pdb = dock_pdb
             self.extract_autodock_pdb_affinity(dock_pdb)
@@ -616,12 +637,12 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         try:
             AUTODOCK_GPU_BIN = os_command.which('autodock_gpu_256wi')
-            print("Autodock GPU executable is {}".format(AUTODOCK_GPU_BIN))
-            print("Run Autodock GPU:")
+            logger.info("Autodock GPU executable is {}".format(AUTODOCK_GPU_BIN))
+            logger.info("Run Autodock GPU:")
             self.run_autodock_gpu(out_folder=out_folder, dock_log=dock_log,
                                   nrun=nrun, check_file_out=check_file_out)
         except IOError:
-            print("Run Autodock CPU:")
+            logger.info("Run Autodock CPU:")
             self.run_autodock_cpu(out_folder=out_folder, dock_log=dock_log,
                                   nrun=nrun, check_file_out=check_file_out)
 
@@ -787,13 +808,13 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         elif dock_bin == 'smina':
             DOCK_BIN = SMINA_BIN
         else:
-            print('Choose an appropriate docking software among:\n'
-                  '- vina\n- qvina\n- qvinaw\n- smina\n')
+            logger.error('Choose an appropriate docking software among:\n'
+                         '- vina\n- qvina\n- qvinaw\n- smina\n')
             return
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(out_pdb):
-            print("vina_docking() not launched", out_pdb, "already exist")
+            logger.info("vina_docking() not launched", out_pdb, "already exist")
             self.dock_pdb = out_pdb
             self.dock_log = log
             return
@@ -801,8 +822,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         option = []
         if autobox:
             if dock_bin != 'smina':
-                print('autobox option is only available with smina')
-                return
+                logger.error('autobox option is only available with smina')
+                raise ValueError
 
             option += ['--autobox_ligand', self.lig_pdbqt]
             option += ['--autobox_add', str(10.0)]
@@ -810,7 +831,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # Define grid size:
         if grid_npts is None:
             self.rec_grid()
-            print('Grid points:', self.grid_npts)
+            logger.info('Grid points: {}'.format(self.grid_npts))
         else:
             self.grid_npts = np.array(grid_npts).astype(int)
 
