@@ -243,6 +243,19 @@ def test_vina_rigid(tmp_path, capsys):
     assert len(affinity) >= 1
     assert affinity[1]['affinity'] < -10
 
+    test_dock.display()
+
+    captured = capsys.readouterr()
+    capture_line = captured.out.split('\n')
+    assert bool(re.match(
+        ("vina --ligand .+lig.pdbqt --receptor .+rec.pdbqt --log "
+         ".+test_vina_dock_log.txt --num_modes 10 --exhaustiveness 2"
+         " --energy_range 1 --out .+test_vina_dock.pdb "
+         "--size_x 23.00 --size_y 23.00 --size_z 23.00"
+         " --center_x 13.08 --center_y 22.52 --center_z 5.54"
+         " --seed 1"),
+        capture_line[0]))
+
 
 def test_autodock_rigid(tmp_path, capsys):
 

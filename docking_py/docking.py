@@ -183,6 +183,12 @@ class Docking:
             return os.path.relpath(self._dock_log)
         return None
 
+    @property
+    def ref_lig_pdb(self):
+        if self._ref_lig_pdb is not None:
+            return os.path.relpath(self._ref_lig_pdb)
+        return None
+
     # @var.setter is used to assign the full path to this variables:
     # Usefull if the working path is changed
     @lig_pdb.setter
@@ -241,6 +247,40 @@ class Docking:
         else:
             self._dock_log = None
 
+    @dock_log.setter
+    def ref_lig_pdb(self, ref_lig_pdb):
+        if ref_lig_pdb is not None:
+            self._ref_lig_pdb = os_command.full_path_and_check(ref_lig_pdb)
+        else:
+            self._ref_lig_pdb = None
+
+    def display(self):
+        """Display defined attribute of the Docking object.
+        """
+        # print("Coor : ", self.coor_file, "\nTop : ", self.top_file)
+
+        # Order dict is only necessary for python 3.5, where dict are not
+        # ordered.
+        # This is only require for doctest
+
+        numbermap = {'name': 1,
+                     '_lig_pdb': 2,
+                     '_lig_pdbqt': 3,
+                     '_rec_pdb': 4,
+                     '_rec_pdbqt': 5,
+                     '_dock_pdb': 6,
+                     '_dock_log': 7,
+                     '_ref_lig_pdb': 8}
+
+        attr_list = [attr for attr in vars(self) if not attr.startswith('__')]
+        for attr in sorted(attr_list, key=numbermap.__getitem__):
+            if attr[0] == "_":
+                to_show = attr[1:]
+            else:
+                to_show = attr
+            if getattr(self, to_show) is not None:
+                print("{:12} : {}".format(to_show, getattr(self, to_show)))
+
     def prepare_ligand(self, lig_pdbqt=None, rigid=False,
                        center=False, random_rot=False,
                        check_file_out=True):
@@ -291,6 +331,10 @@ class Docking:
         >>> coor_lig = pdb_manip.Coor(test_dock.lig_pdbqt)\
         #doctest: +ELLIPSIS
         Succeed to read file .../lig.pdbqt ,  50 atoms found
+        >>> test_dock.display() #doctest: +ELLIPSIS
+        name         : test
+        lig_pdb      : .../lig.pdb
+        lig_pdbqt    : .../lig.pdbqt
         """
 
         # If lig_pdbqt is not defined use the lig_pdb name + .pdbqt
@@ -384,6 +428,10 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         >>> coor_rec = pdb_manip.Coor(test_dock.rec_pdbqt)\
         #doctest: +ELLIPSIS
         Succeed to read file .../rec.pdbqt ,  1844 atoms found
+        >>> test_dock.display() #doctest: +ELLIPSIS
+        name         : test
+        rec_pdb      : .../rec.pdb
+        rec_pdbqt    : .../rec.pdbqt
         """
 
         # If lig_pdbqt is not defined use the lig_pdb name + .pdbqt
