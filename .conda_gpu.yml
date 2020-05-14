@@ -8,7 +8,7 @@ dependencies:
   - pdb_manip_py
   - os_command_py
   - python>=3.5
-  - mgltools=1.5.6
+  - mgltools
   - smina
   - autodock-vina
   - qvina

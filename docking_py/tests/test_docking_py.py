@@ -90,7 +90,7 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
 
     captured = capsys.readouterr()
     assert bool(re.match(
-        ("python2.5 .+/prepare_receptor4.py -r .+/rec.pdb"
+        ("python2.+ .+/prepare_receptor4.py -r .+/rec.pdb"
          " -A checkhydrogens -o .+/rec.pdbqt\n"),
         captured.out))
 
@@ -109,7 +109,8 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
     test_dock.prepare_ligand(rigid=True)
 
     captured = capsys.readouterr()
-    assert bool(re.match("python2.5 .+prepare_ligand4.py -l .+lig.pdbqt -Z\n",
+    assert bool(re.match("python.+ .+prepare_ligand4.py -l lig.pdb -B "
+                         "none -A hydrogens -o lig.pdbqt -Z\n",
                 captured.out))
 
     # Check that ligand pdbqt is fine
@@ -179,9 +180,8 @@ def test_smina_rigid(tmp_path, capsys):
     assert len(rmsd_list) >= 1
     assert rmsd_list[0] < 15
 
-    affinity = test_dock.extract_affinity()
-    assert len(affinity) >= 1
-    assert affinity[1]['affinity'] < -10
+    assert len(test_dock.affinity) >= 1
+    assert test_dock.affinity[1]['affinity'] < -10
 
 
 def test_vina_rigid(tmp_path, capsys):
@@ -239,23 +239,22 @@ def test_vina_rigid(tmp_path, capsys):
     assert len(rmsd_list) >= 1
     assert rmsd_list[0] < 15
 
-    affinity = test_dock.extract_affinity()
-    assert len(affinity) >= 1
-    assert affinity[1]['affinity'] < -10
+    assert len(test_dock.affinity) >= 1
+    assert test_dock.affinity[1]['affinity'] < -10
+
+    captured = capsys.readouterr()
 
     test_dock.display()
 
     captured = capsys.readouterr()
-    capture_line = captured.out.split('\n')
     assert bool(re.match(
-        ("vina --ligand .+lig.pdbqt --receptor .+rec.pdbqt --log "
-         ".+test_vina_dock_log.txt --num_modes 10 --exhaustiveness 2"
-         " --energy_range 1 --out .+test_vina_dock.pdb "
-         "--size_x 23.00 --size_y 23.00 --size_z 23.00"
-         " --center_x 13.08 --center_y 22.52 --center_z 5.54"
-         " --seed 1"),
-        capture_line[0]))
-
+        ("name         : test_vina\n"
+         "lig_pdbqt    : .+lig.pdbqt\n"
+         "rec_pdbqt    : .+rec.pdbqt\n"
+         "dock_pdb     : .+test_vina_dock.pdb\n"
+         "dock_log     : .+test_vina_dock_log.txt\n"
+         "affinity     : {1: {'affinity': .+, 'rmsd_low': 0.0, 'rmsd_high': 0.0}}\n"),
+        captured.out))
 
 def test_autodock_rigid(tmp_path, capsys):
 
@@ -294,7 +293,7 @@ def test_autodock_rigid(tmp_path, capsys):
 
     captured = capsys.readouterr()
     assert bool(re.match(
-        ("python2.5 .+prepare_gpf4.py -r .+rec.pdbqt -l .+lig.pdbqt -o "
+        ("python2.+ .+prepare_gpf4.py -r rec.pdbqt -l lig.pdbqt -o "
          "test_autodock.gpf -p npts=48,48,48 -p "
          "gridcenter=13.08,22.52,5.54\nautogrid4 -p test_autodock.gpf -l "
          "test_autodock.log"),
@@ -305,6 +304,21 @@ def test_autodock_rigid(tmp_path, capsys):
     rmsd_list = test_dock.compute_dock_rmsd(test_dock.lig_pdbqt)
     assert len(rmsd_list) >= 1
     assert rmsd_list[0] < 15
+    captured = capsys.readouterr()
+
+    test_dock.display()
+
+    captured = capsys.readouterr()
+    assert bool(re.match(
+        ("name         : test_autodock\n"
+         "lig_pdbqt    : .+lig.pdbqt\n"
+         "rec_pdbqt    : .+rec.pdbqt\n"
+         "dock_pdb     : .+test_autodock_dock.pdb\n"
+         "dock_log     : .+test_autodock_dock_log.dlg\n"
+         "gpf          : .+test_autodock.gpf\n"
+         "affinity     : {1: {'affinity': -.+}}\n"
+         ),
+        captured.out))
 
     # TO add when it is done !!
     # affinity = test_dock.extract_affinity()

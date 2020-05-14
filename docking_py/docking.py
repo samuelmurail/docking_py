@@ -69,7 +69,12 @@ else:
     if CONDA_PREFIX is None:
         CONDA_PREFIX = '/'.join(PREPARE_REC.split('/')[:-2])
 
-    MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.5')
+    if os_command.check_file_exist(
+        os.path.join(CONDA_PREFIX, 'bin/python2.5')):
+            MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.5')
+    elif os_command.check_file_exist(
+        os.path.join(CONDA_PREFIX, 'bin/python2.7')):
+            MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.7')
     logger.info("Python Smina is {}".format(MGLTOOL_PYTHON))
 
     PREPARE_GPF = os.path.join(
@@ -160,18 +165,6 @@ class Docking:
         return None
 
     @property
-    def grid(self):
-        if self._grid is not None:
-            return os.path.relpath(self._grid)
-        return None
-
-    @property
-    def dpf(self):
-        if self._dpf is not None:
-            return os.path.relpath(self._dpf)
-        return None
-
-    @property
     def dock_pdb(self):
         if self._dock_pdb is not None:
             return os.path.relpath(self._dock_pdb)
@@ -187,6 +180,12 @@ class Docking:
     def ref_lig_pdb(self):
         if self._ref_lig_pdb is not None:
             return os.path.relpath(self._ref_lig_pdb)
+        return None
+
+    @property
+    def gpf(self):
+        if self._gpf is not None:
+            return os.path.relpath(self._gpf)
         return None
 
     # @var.setter is used to assign the full path to this variables:
@@ -219,20 +218,6 @@ class Docking:
         else:
             self._rec_pdbqt = None
 
-    @grid.setter
-    def grid(self, grid):
-        if grid is not None:
-            self._grid = os_command.full_path_and_check(grid)
-        else:
-            self._grid = None
-
-    @dpf.setter
-    def dpf(self, dpf):
-        if dpf is not None:
-            self._dpf = os_command.full_path_and_check(dpf)
-        else:
-            self._dpf = None
-
     @dock_pdb.setter
     def dock_pdb(self, dock_pdb):
         if dock_pdb is not None:
@@ -247,12 +232,19 @@ class Docking:
         else:
             self._dock_log = None
 
-    @dock_log.setter
+    @ref_lig_pdb.setter
     def ref_lig_pdb(self, ref_lig_pdb):
         if ref_lig_pdb is not None:
             self._ref_lig_pdb = os_command.full_path_and_check(ref_lig_pdb)
         else:
             self._ref_lig_pdb = None
+
+    @gpf.setter
+    def gpf(self, gpf):
+        if gpf is not None:
+            self._gpf = os_command.full_path_and_check(gpf)
+        else:
+            self._gpf = None
 
     def display(self):
         """Display defined attribute of the Docking object.
@@ -268,9 +260,11 @@ class Docking:
                      '_lig_pdbqt': 3,
                      '_rec_pdb': 4,
                      '_rec_pdbqt': 5,
-                     '_dock_pdb': 6,
-                     '_dock_log': 7,
-                     '_ref_lig_pdb': 8}
+                     '_ref_lig_pdb': 6,
+                     '_dock_pdb': 7,
+                     '_dock_log': 8,
+                     '_gpf': 9,
+                     'affinity': 10}
 
         attr_list = [attr for attr in vars(self) if not attr.startswith('__')]
         for attr in sorted(attr_list, key=numbermap.__getitem__):
@@ -326,8 +320,8 @@ class Docking:
         Succeed to save file .../lig.pdb
         >>> test_dock = Docking('test', lig_pdb=out_lig)
         >>> test_dock.prepare_ligand() #doctest: +ELLIPSIS
-        python2.5 .../prepare_ligand4.py -l .../lig.pdb -B none -A\
- hydrogens -o .../lig.pdbqt
+        python2... .../prepare_ligand4.py -l lig.pdb -B none -A\
+ hydrogens -o lig.pdbqt
         >>> coor_lig = pdb_manip.Coor(test_dock.lig_pdbqt)\
         #doctest: +ELLIPSIS
         Succeed to read file .../lig.pdbqt ,  50 atoms found
@@ -335,56 +329,73 @@ class Docking:
         name         : test
         lig_pdb      : .../lig.pdb
         lig_pdbqt    : .../lig.pdbqt
+        ref_lig_pdb  : .../lig.pdb
         """
 
         # If lig_pdbqt is not defined use the lig_pdb name + .pdbqt
         if lig_pdbqt is None:
-            lig_pdbqt = self.lig_pdb + 'qt'
+            lig_pdbqt = self._lig_pdb + 'qt'
+        basename_pdbqt = os.path.basename(lig_pdbqt)
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(lig_pdbqt):
             logger.info("prepare_ligand() not launched {} already"
                         " exist".format(lig_pdbqt))
-            self.ref_lig_pdb = self.lig_pdb
+            self.ref_lig_pdb = self._lig_pdb
             if random_rot:
-                self.lig_pdb = self.lig_pdb[:-4] + '_rot.pdb'
+                self.lig_pdb = self._lig_pdb[:-4] + '_rot.pdb'
             if center:
-                self.lig_pdb = self.lig_pdb[:-4] + '_center.pdb'
+                self.lig_pdb = self._lig_pdb[:-4] + '_center.pdb'
             self.lig_pdbqt = lig_pdbqt
             return
+
+        start_dir = os.path.abspath(".")
+
+        # Create and go in out_folder:
+        # prepare_ligand accept file name, not full path
+        out_folder = os_command.get_directory(self._lig_pdb)
+        os_command.create_and_go_dir(out_folder)
 
         option = []
         if rigid:
             option.append('-Z')
 
         # Define reference pdb for ligand
-        self.ref_lig_pdb = self.lig_pdb
+        self.ref_lig_pdb = self._lig_pdb
 
         # Add random rot:
         if random_rot:
-            lig_coor = pdb_manip.Coor(self.lig_pdb)
+            lig_coor = pdb_manip.Coor(self._lig_pdb)
             tau_x, tau_y, tau_z = np.random.random_sample((3,)) * 360
             lig_coor.rotation_angle(tau_x, tau_y, tau_z)
-            lig_coor.write_pdb(self.lig_pdb[:-4] + '_rot.pdb')
-            self.lig_pdb = self.lig_pdb[:-4] + '_rot.pdb'
+            lig_coor.write_pdb(self._lig_pdb[:-4] + '_rot.pdb')
+            self.lig_pdb = self._lig_pdb[:-4] + '_rot.pdb'
 
         # center ligand coordinates
         if center:
-            lig_coor = pdb_manip.Coor(self.lig_pdb)
+            lig_coor = pdb_manip.Coor(self._lig_pdb)
             lig_com = lig_coor.center_of_mass()
             lig_coor.translate(-lig_com)
-            lig_coor.write_pdb(self.lig_pdb[:-4] + '_center.pdb')
-            self.lig_pdb = self.lig_pdb[:-4] + '_center.pdb'
+            lig_coor.write_pdb(self._lig_pdb[:-4] + '_center.pdb')
+            self.lig_pdb = self._lig_pdb[:-4] + '_center.pdb'
+
 
         cmd_lig = os_command.Command([MGLTOOL_PYTHON, PREPARE_LIG,
-                                      "-l", self.lig_pdb,
+                                      "-l", self._lig_pdb,
                                       "-B", 'none',
                                       "-A", 'hydrogens',
-                                      "-o", lig_pdbqt] + option)
+                                      "-o", basename_pdbqt] + option)
         cmd_lig.display()
         cmd_lig.run()
 
-        self.lig_pdbqt = lig_pdbqt
+        if os.path.abspath(lig_pdbqt) != os.path.abspath(basename_pdbqt):
+            print("YO")
+
+
+        self.lig_pdbqt = os.path.abspath(basename_pdbqt)
+
+        os.chdir(start_dir)
+
         return
 
     def prepare_receptor(self, rec_pdbqt=None, check_file_out=True):
@@ -423,7 +434,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         Receptor has 1514 atoms
         >>> test_dock = Docking('test', rec_pdb=out_rec)
         >>> test_dock.prepare_receptor() #doctest: +ELLIPSIS
-        python2.5 .../prepare_receptor4.py -r .../rec.pdb -A checkhydrogens\
+        python2... .../prepare_receptor4.py -r .../rec.pdb -A checkhydrogens\
  -o .../rec.pdbqt
         >>> coor_rec = pdb_manip.Coor(test_dock.rec_pdbqt)\
         #doctest: +ELLIPSIS
@@ -436,7 +447,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # If lig_pdbqt is not defined use the lig_pdb name + .pdbqt
         if rec_pdbqt is None:
-            rec_pdbqt = self.rec_pdb + 'qt'
+            rec_pdbqt = self._rec_pdb + 'qt'
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(rec_pdbqt):
@@ -447,7 +458,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             return
 
         cmd_rec = os_command.Command([MGLTOOL_PYTHON, PREPARE_REC,
-                                      "-r", self.rec_pdb,
+                                      "-r", self._rec_pdb,
                                       "-A", 'checkhydrogens',
                                       "-o", rec_pdbqt])
         cmd_rec.display()
@@ -491,9 +502,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Add grid points
         if grid_npts is None:
-            self.rec_grid(spacing=spacing)
-            logger.info('Grid points: {}'.format(self.grid_npts))
-            grid_npts = self.grid_npts
+            grid_npts = self.rec_grid(spacing=spacing)
+            logger.info('Grid points: {}'.format(grid_npts))
 
         # Check that not point are above 255
         # Issues have been revaled with autodock gpu with more points
@@ -510,27 +520,27 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Add grid points
         if center is None:
-            self.rec_com()
-            logger.info('Center: {}'.format(self.rec_com))
-            center = self.rec_com
+            center = self.rec_com()
+            logger.info('Center: {}'.format(center))
+
         option_gpf += ['-p', 'gridcenter={:.2f},{:.2f},{:.2f}'.format(
             *center)]
 
+        # The rec.pdbqt should be in the same directory as gpf_out:
+        if os.path.abspath(
+                os.path.dirname(self._rec_pdbqt)) != os.path.abspath("."):
+            shutil_copy(self._rec_pdbqt, os.path.abspath("."))
+        # The lig.pdbqt should be in the same directory as gpf_out:
+        if os.path.abspath(
+                os.path.dirname(self._lig_pdbqt)) != os.path.abspath("."):
+            shutil_copy(self._lig_pdbqt, os.path.abspath("."))        
+
         cmd_grid = os_command.Command([MGLTOOL_PYTHON, PREPARE_GPF,
-                                       "-r", self.rec_pdbqt,
-                                       "-l", self.lig_pdbqt,
+                                       "-r", os.path.basename(self._rec_pdbqt),
+                                       "-l", os.path.basename(self._lig_pdbqt),
                                        "-o", gpf_out] + option_gpf)
         cmd_grid.display()
         cmd_grid.run()
-
-        # The rec.pdbqt should be in the same directory as gpf_out:
-        if os.path.abspath(
-                os.path.dirname(self.rec_pdbqt)) != os.path.abspath("."):
-            shutil_copy(self.rec_pdbqt, os.path.abspath("."))
-        # The lig.pdbqt should be in the same directory as gpf_out:
-        if os.path.abspath(
-                os.path.dirname(self.lig_pdbqt)) != os.path.abspath("."):
-            shutil_copy(self.lig_pdbqt, os.path.abspath("."))
 
         grid_log = gpf_out[:-4] + '.log'
         cmd_autogrid = os_command.Command([AUTOGRID_BIN,
@@ -589,8 +599,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             option += ['-p', parameter]
 
         cmd_prep = os_command.Command([MGLTOOL_PYTHON, PREPARE_DPF,
-                                       "-r", self.rec_pdbqt,
-                                       "-l", self.lig_pdbqt,
+                                       "-r", self._rec_pdbqt,
+                                       "-l", self._lig_pdbqt,
                                        "-o", dpf_out] + option)
         cmd_prep.display()
         cmd_prep.run()
@@ -660,11 +670,11 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             os.chdir(start_dir)
             return
 
-        self.get_gridfld()
+        gridfld = get_gridfld()
 
         cmd_dock = os_command.Command([AUTODOCK_GPU_BIN,
-                                       "-ffile", self.gridfld,
-                                       "-lfile", self.lig_pdbqt,
+                                       "-ffile", gridfld,
+                                       "-lfile", self._lig_pdbqt,
                                        "-nrun", str(nrun),
                                        "-resnam", dock_log[:-4]])
         cmd_dock.display()
@@ -704,7 +714,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         mode_info_dict = {}
 
-        with open(self.dock_log) as pdbfile:
+        with open(self._dock_log) as pdbfile:
             for line in pdbfile:
                 if line.startswith("DOCKED: "):
                     # print(line[8:16].strip())
@@ -731,54 +741,40 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         Get ``gridfld`` from the ``.gpf`` file.
         """
 
-        with open(self.gpf) as file:
+        with open(self._gpf) as file:
             for line in file:
                 if line.startswith('gridfld'):
                     gridfld = line.split()[1]
 
-        self.gridfld = gridfld
-        return
+        return gridfld
 
-    def get_npts(self):
-        """ Extract grid size
-        """
-        grid_npts = []
-        with open(self.grid) as file:
-            for line in file:
-                if 'npts' in line:
-                    grid_npts.append(int(line[5:8].strip()))
-                    grid_npts.append(int(line[8:11].strip()))
-                    grid_npts.append(int(line[11:15].strip()))
-
-        self.grid_npts = grid_npts
-        return
 
     def rec_com(self):
         """ Get center of mass of the receptor pdb file.
         """
-        if self.rec_pdb is not None:
+        if self._rec_pdb is not None:
             rec_com = pdb_manip.Coor(self.rec_pdb)
-        elif self.rec_pdbqt is not None:
+        elif self._rec_pdbqt is not None:
             rec_com = pdb_manip.Coor(self.rec_pdbqt)
         else:
             raise IOError("No receptor file defined")
 
-        self.rec_com = rec_com.center_of_mass()
-        return self.rec_com
+        rec_com = rec_com.center_of_mass()
+        return rec_com
 
     def rec_grid(self, buffer_space=30, spacing=1.0):
         """ Compute grid from the receptor pdb file.
         """
-        if self.rec_pdb is not None:
-            rec_com = pdb_manip.Coor(self.rec_pdb)
-        elif self.rec_pdbqt is not None:
-            rec_com = pdb_manip.Coor(self.rec_pdbqt)
+        if self._rec_pdb is not None:
+            rec_com = pdb_manip.Coor(self._rec_pdb)
+        elif self._rec_pdbqt is not None:
+            rec_com = pdb_manip.Coor(self._rec_pdbqt)
         else:
             raise IOError("No receptor file defined")
 
-        self.grid_npts = ((np.ceil(rec_com.get_box_dim()) +
+        grid_npts = ((np.ceil(rec_com.get_box_dim()) +
                           buffer_space) / spacing).astype(int)
-        return self.grid_npts
+        return grid_npts
 
     def run_docking(self, out_pdb, log=None, dock_bin='vina',
                     num_modes=100, energy_range=10, exhaustiveness=16,
@@ -876,29 +872,27 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                 logger.error('autobox option is only available with smina')
                 raise ValueError
 
-            option += ['--autobox_ligand', self.lig_pdbqt]
+            option += ['--autobox_ligand', self._lig_pdbqt]
             option += ['--autobox_add', str(10.0)]
 
         # Define grid size:
         if grid_npts is None:
-            self.rec_grid()
-            logger.info('Grid points: {}'.format(self.grid_npts))
+            grid_npts = self.rec_grid()
+            logger.info('Grid points: {}'.format(grid_npts))
         else:
-            self.grid_npts = np.array(grid_npts).astype(int)
+            grid_npts = np.array(grid_npts).astype(int)
 
-        option += ["--size_x", '{:.2f}'.format(self.grid_npts[0]),
-                   "--size_y", '{:.2f}'.format(self.grid_npts[1]),
-                   "--size_z", '{:.2f}'.format(self.grid_npts[2])]
+        option += ["--size_x", '{:.2f}'.format(grid_npts[0]),
+                   "--size_y", '{:.2f}'.format(grid_npts[1]),
+                   "--size_z", '{:.2f}'.format(grid_npts[2])]
 
         # Define grid center:
         if center is None:
-            self.rec_com()
-        else:
-            self.rec_com = center
+            center = self.rec_com()
 
-        option += ["--center_x", '{:.2f}'.format(self.rec_com[0]),
-                   "--center_y", '{:.2f}'.format(self.rec_com[1]),
-                   "--center_z", '{:.2f}'.format(self.rec_com[2])]
+        option += ["--center_x", '{:.2f}'.format(center[0]),
+                   "--center_y", '{:.2f}'.format(center[1]),
+                   "--center_z", '{:.2f}'.format(center[2])]
 
         # Define cpu number:
         if cpu is not None:
@@ -915,8 +909,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                 option += ["--scoring", str(scoring)]
 
         cmd_dock = os_command.Command([DOCK_BIN,
-                                       "--ligand", self.lig_pdbqt,
-                                       "--receptor", self.rec_pdbqt,
+                                       "--ligand", self._lig_pdbqt,
+                                       "--receptor", self._rec_pdbqt,
                                        "--log", log,
                                        "--num_modes", str(num_modes),
                                        "--exhaustiveness", str(exhaustiveness),
@@ -927,6 +921,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         self.dock_pdb = out_pdb
         self.dock_log = log
+        self.extract_affinity()
 
         return
 
@@ -950,8 +945,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         cryst_coor = pdb_manip.Coor(ref_lig_pdb)
 
-        dock_coor = pdb_manip.Multi_Coor(self.dock_pdb)
-        dock_coor.write_pdb(self.dock_pdb[:-4] + '_vmd.pdb')
+        dock_coor = pdb_manip.Multi_Coor(self._dock_pdb)
+        dock_coor.write_pdb(self._dock_pdb[:-4] + '_vmd.pdb')
 
         rmsd = dock_coor.compute_rmsd_to(cryst_coor, selec_dict=selec_dict)
 
@@ -970,7 +965,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         mode_info_dict = {}
 
-        with open(self.dock_log) as dock_log:
+        with open(self._dock_log) as dock_log:
             for line in dock_log:
                 if line.startswith('-----+------------+----------+----------'):
                     mode_read = True
@@ -982,8 +977,9 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                         'rmsd_low': float(line_split[2]),
                         'rmsd_high': float(line_split[3])}
 
+
         self.affinity = mode_info_dict
-        return mode_info_dict
+        return
 
     def extract_lig_rec_pdb(self, coor_in, folder_out, rec_select_dict,
                             lig_select_dict):
@@ -1146,7 +1142,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         """
 
         # Extract receptor pdb
-        rec_coor = pdb_manip.Coor(self.rec_pdb)
+        rec_coor = pdb_manip.Coor(self._rec_pdb)
 
         # Read ref_pdb
         ref_coor = pdb_manip.Coor(ref_pdb)
@@ -1160,7 +1156,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         rec_coor.align_seq_coor_to(aa_ref_coor, chain_1=chain_rec,
                                    chain_2=chain_ref)
-        rec_coor.write_pdb(self.rec_pdb, check_file_out=False)
+        rec_coor.write_pdb(self._rec_pdb, check_file_out=False)
 
         return
 
@@ -1240,11 +1236,11 @@ com_before==com_after))
             The function overwrite lig_pdb coordinates.
         """
 
-        lig_coor = pdb_manip.Coor(self.lig_pdb)
+        lig_coor = pdb_manip.Coor(self._lig_pdb)
 
         tau_x, tau_y, tau_z = np.random.random_sample((3,)) * 360
         lig_coor.rotation_angle(tau_x, tau_y, tau_z)
-        lig_coor.write_pdb(self.lig_pdb, check_file_out=False)
+        lig_coor.write_pdb(self._lig_pdb, check_file_out=False)
 
         return
 
