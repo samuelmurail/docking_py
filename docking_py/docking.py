@@ -586,7 +586,6 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             logger.info("run_autodock_cpu() not launched {} "
                         "already exist".format(dock_log))
             self.dock_log = dock_log
-            self.dock_pdb = dock_pdb
             self.extract_autodock_pdb_affinity(dock_pdb)
             os.chdir(start_dir)
             return
@@ -665,7 +664,6 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             logger.info("run_autodock_gpu() not launched {} "
                         "already exist".format(dock_log))
             self.dock_log = dock_log
-            self.dock_pdb = dock_pdb
             self.extract_autodock_pdb_affinity(dock_pdb)
             os.chdir(start_dir)
             return
