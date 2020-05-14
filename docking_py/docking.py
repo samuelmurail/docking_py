@@ -670,7 +670,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             os.chdir(start_dir)
             return
 
-        gridfld = get_gridfld()
+        gridfld = self.get_gridfld()
 
         cmd_dock = os_command.Command([AUTODOCK_GPU_BIN,
                                        "-ffile", gridfld,
