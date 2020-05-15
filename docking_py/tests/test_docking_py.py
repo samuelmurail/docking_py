@@ -253,8 +253,10 @@ def test_vina_rigid(tmp_path, capsys):
          "rec_pdbqt    : .+rec.pdbqt\n"
          "dock_pdb     : .+test_vina_dock.pdb\n"
          "dock_log     : .+test_vina_dock_log.txt\n"
-         "affinity     : {1: {'affinity': .+, 'rmsd_low': 0.0, 'rmsd_high': 0.0}}\n"),
+         "affinity     : {1: {'affinity': .+, 'rmsd_low': 0.0,"
+         " 'rmsd_high': 0.0}}\n"),
         captured.out))
+
 
 def test_autodock_rigid(tmp_path, capsys):
 

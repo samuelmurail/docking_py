@@ -69,12 +69,12 @@ else:
     if CONDA_PREFIX is None:
         CONDA_PREFIX = '/'.join(PREPARE_REC.split('/')[:-2])
 
-    if os_command.check_file_exist(
-        os.path.join(CONDA_PREFIX, 'bin/python2.5')):
-            MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.5')
-    elif os_command.check_file_exist(
-        os.path.join(CONDA_PREFIX, 'bin/python2.7')):
-            MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.7')
+    if os_command.check_file_exist(os.path.join(
+            CONDA_PREFIX, 'bin/python2.5')):
+        MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.5')
+    elif os_command.check_file_exist(os.path.join(
+            CONDA_PREFIX, 'bin/python2.7')):
+        MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.7')
     logger.info("Python Smina is {}".format(MGLTOOL_PYTHON))
 
     PREPARE_GPF = os.path.join(
@@ -249,7 +249,6 @@ class Docking:
     def display(self):
         """Display defined attribute of the Docking object.
         """
-        # print("Coor : ", self.coor_file, "\nTop : ", self.top_file)
 
         # Order dict is only necessary for python 3.5, where dict are not
         # ordered.
@@ -274,6 +273,21 @@ class Docking:
                 to_show = attr
             if getattr(self, to_show) is not None:
                 print("{:12} : {}".format(to_show, getattr(self, to_show)))
+
+    def view_dock(self):
+        """ Return a `nglview` object to view the object coordinates
+        in a jupyter notebook with the module ``nglview``.
+
+        """
+
+        import nglview as nv
+
+        coor = pdb_manip.Coor(self.rec_pdbqt)
+        struct_str = nv.TextStructure(coor.get_structure_string())
+        view = nv.NGLWidget(struct_str)
+        view.add_component(self.dock_pdb)
+
+        return view
 
     def prepare_ligand(self, lig_pdbqt=None, rigid=False,
                        center=False, random_rot=False,
@@ -379,7 +393,6 @@ class Docking:
             lig_coor.write_pdb(self._lig_pdb[:-4] + '_center.pdb')
             self.lig_pdb = self._lig_pdb[:-4] + '_center.pdb'
 
-
         cmd_lig = os_command.Command([MGLTOOL_PYTHON, PREPARE_LIG,
                                       "-l", self._lig_pdb,
                                       "-B", 'none',
@@ -390,7 +403,6 @@ class Docking:
 
         if os.path.abspath(lig_pdbqt) != os.path.abspath(basename_pdbqt):
             print("YO")
-
 
         self.lig_pdbqt = os.path.abspath(basename_pdbqt)
 
@@ -533,7 +545,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         # The lig.pdbqt should be in the same directory as gpf_out:
         if os.path.abspath(
                 os.path.dirname(self._lig_pdbqt)) != os.path.abspath("."):
-            shutil_copy(self._lig_pdbqt, os.path.abspath("."))        
+            shutil_copy(self._lig_pdbqt, os.path.abspath("."))
 
         cmd_grid = os_command.Command([MGLTOOL_PYTHON, PREPARE_GPF,
                                        "-r", os.path.basename(self._rec_pdbqt),
@@ -746,7 +758,6 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         return gridfld
 
-
     def rec_com(self):
         """ Get center of mass of the receptor pdb file.
         """
@@ -771,7 +782,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             raise IOError("No receptor file defined")
 
         grid_npts = ((np.ceil(rec_com.get_box_dim()) +
-                          buffer_space) / spacing).astype(int)
+                     buffer_space) / spacing).astype(int)
         return grid_npts
 
     def run_docking(self, out_pdb, log=None, dock_bin='vina',
@@ -974,7 +985,6 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                         'affinity': float(line_split[1]),
                         'rmsd_low': float(line_split[2]),
                         'rmsd_high': float(line_split[3])}
-
 
         self.affinity = mode_info_dict
         return
