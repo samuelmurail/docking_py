@@ -274,18 +274,48 @@ class Docking:
             if getattr(self, to_show) is not None:
                 print("{:12} : {}".format(to_show, getattr(self, to_show)))
 
-    def view_dock(self):
+    def view_dock(self, ref_pdb=None):
         """ Return a `nglview` object to view the object coordinates
         in a jupyter notebook with the module ``nglview``.
 
         """
 
         import nglview as nv
+        from gromacs_py import gmx
 
-        coor = pdb_manip.Coor(self.rec_pdbqt)
-        struct_str = nv.TextStructure(coor.get_structure_string())
-        view = nv.NGLWidget(struct_str)
-        view.add_component(self.dock_pdb)
+        # To load the dock structures as a trajectory
+        # The pdb file must be convert to a traj file eg. xtc
+        dock_gmx = gmx.GmxSys(name='dock', coor_file=self._dock_pdb)
+        dock_gmx.tpr = self._dock_pdb
+        dock_gmx.xtc = self._dock_pdb
+        dock_gmx.convert_trj(traj=True, pbc='none')
+
+        # Need simpletraj library
+        dock_traj = nv.SimpletrajTrajectory(dock_gmx._xtc, self._dock_pdb)
+        view = nv.NGLWidget(dock_traj)
+        view.add_representation('licorice', 'all')
+        view.add_representation('cartoon', 'all')
+
+        # In theory could be simpler
+        # with add_component(self._rec_pdb)
+        # However, works weardly depending on the location where the command
+        # is launched
+
+        coor_rec = pdb_manip.Coor(self._rec_pdb)
+        rec_str = nv.TextStructure(coor_rec.get_structure_string())
+
+        view.add_component(rec_str, default=False)
+        view.component_1.add_representation(
+            'cartoon', selection='protein', color='blue')
+
+        if ref_pdb is not None:
+            coor_ref = pdb_manip.Coor(ref_pdb)
+            ref_str = nv.TextStructure(coor_ref.get_structure_string())
+            view.add_component(ref_str, default=False)
+            view.component_2.add_representation(
+                'licorice', selection='protein', color='red')
+
+        view.center()
 
         return view
 
@@ -956,6 +986,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         dock_coor = pdb_manip.Multi_Coor(self._dock_pdb)
         dock_coor.write_pdb(self._dock_pdb[:-4] + '_vmd.pdb')
+        self.dock_pdb = self._dock_pdb[:-4] + '_vmd.pdb'
 
         rmsd = dock_coor.compute_rmsd_to(cryst_coor, selec_dict=selec_dict)
 

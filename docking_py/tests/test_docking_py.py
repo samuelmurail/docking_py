@@ -251,10 +251,9 @@ def test_vina_rigid(tmp_path, capsys):
         ("name         : test_vina\n"
          "lig_pdbqt    : .+lig.pdbqt\n"
          "rec_pdbqt    : .+rec.pdbqt\n"
-         "dock_pdb     : .+test_vina_dock.pdb\n"
+         "dock_pdb     : .+test_vina_dock_vmd.pdb\n"
          "dock_log     : .+test_vina_dock_log.txt\n"
-         "affinity     : {1: {'affinity': .+, 'rmsd_low': 0.0,"
-         " 'rmsd_high': 0.0}}\n"),
+         "affinity     : {1: .+'affinity': .+}}\n"),
         captured.out))
 
 
@@ -315,10 +314,10 @@ def test_autodock_rigid(tmp_path, capsys):
         ("name         : test_autodock\n"
          "lig_pdbqt    : .+lig.pdbqt\n"
          "rec_pdbqt    : .+rec.pdbqt\n"
-         "dock_pdb     : .+test_autodock_dock.pdb\n"
+         "dock_pdb     : .+test_autodock_dock_vmd.pdb\n"
          "dock_log     : .+test_autodock_dock_log.dlg\n"
          "gpf          : .+test_autodock.gpf\n"
-         "affinity     : {1: {'affinity': -.+}}\n"
+         "affinity     : {1: .+affinity': -.+}}\n"
          ),
         captured.out))
 
