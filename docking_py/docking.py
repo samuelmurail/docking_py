@@ -746,13 +746,14 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             self.run_autodock_cpu(out_folder=out_folder, dock_log=dock_log,
                                   nrun=nrun, check_file_out=check_file_out)
 
-    def extract_autodock_pdb_affinity(self, out_pdb):
+    def extract_autodock_pdb_affinity(self, out_pdb, reorder=True):
         """
         Extract pdb models from the the autodock log files.
         """
         filout = open(out_pdb, 'w')
 
         mode_info_dict = {}
+        affinity_list = []
 
         with open(self._dock_log) as pdbfile:
             for line in pdbfile:
@@ -766,13 +767,33 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                     if line.startswith("DOCKED: USER    Estimated Free"
                                        " Energy of Binding    ="):
                         affinity = float(line.split()[8])
+                        affinity_list.append(affinity)
                         mode_info_dict[model] = {'affinity': affinity}
 
         filout.write("TER\n")
         filout.close()
 
-        self.dock_pdb = out_pdb
         self.affinity = mode_info_dict
+        self.dock_pdb = out_pdb
+
+        if reorder:
+            # Reorder coor models as function of affinity:
+            dock_coor = pdb_manip.Multi_Coor(out_pdb)
+            order_coor = pdb_manip.Multi_Coor()
+            order_coor.crystal_pack = dock_coor.crystal_pack
+    
+            order_mode_info_dict = {}
+    
+            for i in range(len(dock_coor.coor_list)):
+                index = affinity_list.index(min(affinity_list))
+                print(i, index)
+                affinity_list[index] = 10e10
+                order_coor.coor_list.append(dock_coor.coor_list[index])
+    
+                order_mode_info_dict[i+1] = mode_info_dict[index+1]
+    
+            dock_coor.write_pdb(out_pdb)
+            self.affinity = order_mode_info_dict
 
         return
 
