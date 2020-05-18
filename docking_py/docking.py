@@ -781,17 +781,17 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             dock_coor = pdb_manip.Multi_Coor(out_pdb)
             order_coor = pdb_manip.Multi_Coor()
             order_coor.crystal_pack = dock_coor.crystal_pack
-    
+
             order_mode_info_dict = {}
-    
+
             for i in range(len(dock_coor.coor_list)):
                 index = affinity_list.index(min(affinity_list))
                 print(i, index)
                 affinity_list[index] = 10e10
                 order_coor.coor_list.append(dock_coor.coor_list[index])
-    
+
                 order_mode_info_dict[i+1] = mode_info_dict[index+1]
-    
+
             dock_coor.write_pdb(out_pdb)
             self.affinity = order_mode_info_dict
 
@@ -835,6 +835,71 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         grid_npts = ((np.ceil(rec_com.get_box_dim()) +
                      buffer_space) / spacing).astype(int)
         return grid_npts
+
+    def run_autodock_docking(self, out_pdb, log=None,
+                             num_modes=100, center=None, spacing=0.375,
+                             grid_size=None, check_file_out=True):
+        """
+        Run docking using autodock.
+
+        :param out_pdb: PDB output name
+        :type out_pdb: str
+
+        :param log: Log ouput name
+        :type log: str, optional, default=None
+
+        :param num_modes: maximum number of binding modes to generate
+        :type num_modes: int, optional, default=100
+
+        :param center: coordinate of the center (x, y, z, Angstroms)
+        :type center: list, optional, default=None
+
+        :param grid_size: size in the docking box (x, y, z, Angstroms)
+        :type grid_size: list, optional, default=None
+
+        :param check_file_out: flag to check or not if file has already been
+            created. If the file is present then the command break.
+        :type check_file_out: bool, optional, default=True
+
+
+        **Object requirement(s):**
+
+            * self.lig_pdbqt
+            * self.rec_pdbqt
+
+        **Object field(s) changed:**
+
+            * self.dock_pdb
+            * self.dock_log
+
+        :Example:
+
+        """
+
+        # Check if output files exist:
+        if check_file_out and os_command.check_file_and_create_path(out_pdb):
+            logger.info("run_autodock_docking() not launched {} already"
+                        " exists".format(out_pdb))
+            self.dock_pdb = out_pdb
+            self.dock_log = log
+            return
+
+        # Prepare grid:
+        if grid_size is not None:
+            grid_npts = [int(i/spacing)+1 for i in grid_size]
+        else:
+            grid_npts = None
+
+        out_folder = os_command.get_directory(out_pdb)
+
+        self.prepare_grid(out_folder, gpf_out=None,
+                          spacing=spacing, grid_npts=grid_npts, center=center,
+                          check_file_out=check_file_out)
+
+        self.run_autodock(out_folder, nrun=num_modes, dock_log=None,
+                          check_file_out=check_file_out)
+
+        return
 
     def run_docking(self, out_pdb, log=None, dock_bin='vina',
                     num_modes=100, energy_range=10, exhaustiveness=16,
@@ -920,8 +985,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         # Check if output files exist:
         if check_file_out and os_command.check_file_and_create_path(out_pdb):
-            logger.info("vina_docking() not launched {} already"
-                        " exist".format(out_pdb))
+            logger.info("run_docking() not launched {} already"
+                        " exists".format(out_pdb))
             self.dock_pdb = out_pdb
             self.dock_log = log
             return
