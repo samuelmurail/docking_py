@@ -297,7 +297,7 @@ def test_autodock_rigid(tmp_path, capsys):
         ("python2.+ .+prepare_gpf4.py -r rec.pdbqt -l lig.pdbqt -o "
          "test_autodock.gpf -p npts=48,48,48 -p "
          "gridcenter=13.08,22.52,5.54\nautogrid4 -p test_autodock.gpf -l "
-         "test_autodock.log"),
+         "test_autodock.gpf_log"),
         captured.out))
 
     test_dock.run_autodock(out_folder=TEST_OUT, nrun=1)
@@ -314,8 +314,8 @@ def test_autodock_rigid(tmp_path, capsys):
         ("name         : test_autodock\n"
          "lig_pdbqt    : .+lig.pdbqt\n"
          "rec_pdbqt    : .+rec.pdbqt\n"
-         "dock_pdb     : .+test_autodock_dock_vmd.pdb\n"
-         "dock_log     : .+test_autodock_dock_log.dlg\n"
+         "dock_pdb     : .+test_autodock_vmd.pdb\n"
+         "dock_log     : .+test_autodock.dlg\n"
          "gpf          : .+test_autodock.gpf\n"
          "affinity     : {1: .+affinity': -.+}}\n"
          ),
@@ -362,12 +362,13 @@ def test_autodock_2_rigid(tmp_path, capsys):
     capture_line = captured.out.split('\n')
     assert bool(re.match(
         ("python2.+ .+prepare_gpf4.py -r rec.pdbqt -l lig.pdbqt -o "
-         "test_autodock_2.gpf -p npts=62,62,62 -p "
+         "test_autodock_2_dock.gpf -p npts=62,62,62 -p "
          "gridcenter=13.08,22.52,5.54"),
         capture_line[0]))
 
     assert bool(re.match(
-        ("autogrid4 -p test_autodock_2.gpf -l test_autodock_2.log"),
+        ("autogrid4 -p test_autodock_2_dock.gpf "
+         "-l test_autodock_2_dock.gpf_log"),
         capture_line[1]))
 
     rmsd_list = test_dock.compute_dock_rmsd(test_dock.lig_pdbqt)
@@ -387,8 +388,8 @@ def test_autodock_2_rigid(tmp_path, capsys):
          "lig_pdbqt    : .+lig.pdbqt\n"
          "rec_pdbqt    : .+rec.pdbqt\n"
          "dock_pdb     : .+test_autodock_2_dock_vmd.pdb\n"
-         "dock_log     : .+test_autodock_2_dock_log.dlg\n"
-         "gpf          : .+test_autodock_2.gpf\n"
+         "dock_log     : .+test_autodock_2_dock.dlg\n"
+         "gpf          : .+test_autodock_2_dock.gpf\n"
          "affinity     : {1: .+affinity': -.+}}\n"
          ),
         captured.out))
