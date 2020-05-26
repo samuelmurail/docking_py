@@ -1,4 +1,4 @@
-name: docking
+name: docking_gpu
 channels:
   - conda-forge
   - bioconda
