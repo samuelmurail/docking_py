@@ -690,19 +690,24 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                                        "-o", dpf_out] + option)
         cmd_prep.display()
         cmd_prep.run()
+        sys.stderr.write("autodock_cpu: preparatory step completed ...\n")
 
         # Run autodock
         cmd_dock = os_command.Command([AUTODOCK_BIN,
                                        "-p", dpf_out,
                                        "-log", dock_log])
         cmd_dock.display()
+        sys.stderr.write("autodock_cpu: will now run autodock ...\n")
         cmd_dock.run()
+        sys.stderr.write("autodock_cpu: autodock_cpu completed ...\n")
 
         self.dock_log = dock_log
         # self.dock_xml = dock_xml
 
         # Exract pdb + affinities form the log file:
+        sys.stderr.write("autodock_cpu: will extract affinities ...\n")
         self.extract_autodock_pdb_affinity(dock_pdb)
+        sys.stderr.write("autodock_cpu: affinities extracted ...\n")
 
         os.chdir(start_dir)
         return
@@ -812,6 +817,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         """
 
         try:
+            sys.stderr.write("run_autodock: considering GPU version ...\n")
             AUTODOCK_GPU_BIN = os_command.which('autodock_gpu_256wi')
             logger.info("Autodock GPU executable is {}".format(
                 AUTODOCK_GPU_BIN))
@@ -823,6 +829,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                                   nrun=nrun,
                                   check_file_out=check_file_out)
         except IOError:
+            sys.stderr.write("run_autodock: reverting to CPU version ...\n")
             logger.info("Run Autodock CPU:")
             self.run_autodock_cpu(out_folder=out_folder,
                                   dock_out_prefix=dock_out_prefix,
@@ -1105,6 +1112,8 @@ mode |   affinity | dist from best mode
             self.dock_log = log
             return
 
+        sys.stderr.write("run_autodock_docking: preliminary grid analysis ...\n")
+
         # Prepare grid:
         if grid_size is not None:
             grid_npts = [int(i / spacing) + 1 for i in grid_size]
@@ -1128,16 +1137,19 @@ mode |   affinity | dist from best mode
         logger.info("autodock_docking pdb is: {}".format(out_pdb))
 
         if prepare_grid:
+            sys.stderr.write("Will prepare grid ...\n")
             self.prepare_grid(out_folder,
                               gpf_out_prefix=out_pdb.replace(".pdb", ""),
                               spacing=spacing, grid_npts=grid_npts,
                               center=center,
                               check_file_out=check_file_out)
 
+        sys.stderr.write("Will run ...\n")
         self.run_autodock(out_folder, nrun=num_modes,
                           dock_out_prefix=out_pdb.replace(".pdb", ""),
                           dock_log=None,
                           check_file_out=check_file_out)
+        sys.stderr.write("Run terminated...\n")
 
         return
 
