@@ -1053,7 +1053,7 @@ mode |   affinity | dist from best mode
 
     def run_autodock_docking(self, out_pdb, log=None, prepare_grid=True,
                              num_modes=100, center=None, spacing=0.375,
-                             grid_size=None, check_file_out=True):
+                             grid_size=None, grid_max_points = None, check_file_out=True):
         """
         Run docking using autodock.
 
@@ -1074,6 +1074,9 @@ mode |   affinity | dist from best mode
 
         :param grid_size: size in the docking box (x, y, z, Angstroms)
         :type grid_size: list, optional, default=None
+
+        :param grid_max_points: max number of grid points per dimension (256 for GPU) 
+        :type grid_max_points: int, optional, default=None
 
         :param check_file_out: flag to check or not if file has already been
             created. If the file is present then the command break.
@@ -1105,6 +1108,18 @@ mode |   affinity | dist from best mode
         # Prepare grid:
         if grid_size is not None:
             grid_npts = [int(i / spacing) + 1 for i in grid_size]
+            # MUST BE A CHECK TO INCREASE SPACING IF NEEDED ...
+            if grid_max_points != None:
+            	cur_spacing = spacing
+            	for i, npts in enumerate(grid_npts):
+            		if npts > grid_max_points:
+            			lspacing = (grid_size + spacing) / float(grid_max_points)
+            			if lspacing > cur_spacing:
+            				cur_spacing = lspacing
+            	if cur_spacing > spacing:
+            		spacing = cur_spacing
+            		grid_npts = [int(i / spacing) + 1 for i in grid_size]
+            		logger.info("Increasing grid spacing up to %f to preserve grid_max_points as %d" % (spacing, grid_max_points))
         else:
             grid_npts = None
 
