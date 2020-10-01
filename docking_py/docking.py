@@ -18,7 +18,7 @@ from pdb_manip_py import pdb_manip
 # Logging
 logger = logging.getLogger(__name__)
 
-def log_level(level=logging.INFO):
+def set_log_level(level=logging.INFO):
     """
     setup log verbose level
     """
@@ -35,7 +35,7 @@ def show_log():
     To use only with Doctest !!!
     Redirect logger output to sys.stdout
     """
-    log_level(logging.INFO)
+    set_log_level(logging.INFO)
     # Show pdb_manip Logs:
     pdb_manip.show_log()
 
@@ -136,7 +136,7 @@ class Docking:
     """
 
     def __init__(self, name, lig_pdb=None, rec_pdb=None,
-                 lig_pdbqt=None, rec_pdbqt=None):
+                 lig_pdbqt=None, rec_pdbqt=None, log_level=logging.INFO):
         self.name = name
         self.lig_pdb = lig_pdb
         self.rec_pdb = rec_pdb
@@ -145,7 +145,8 @@ class Docking:
         self.dock_pdb = None
         self.dock_log = None
         self.dock_xml = None
-
+        set_log_level(log_level)
+        
     # @property is used to get the realtive path of this variables:
     # Usefull to print command in a shorter way
     @property
