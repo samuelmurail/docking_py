@@ -18,17 +18,24 @@ from pdb_manip_py import pdb_manip
 # Logging
 logger = logging.getLogger(__name__)
 
-
-def show_log():
-    """ To use only with Doctest !!!
-    Redirect logger output to sys.stdout
+def set_log_level(level=logging.INFO):
+    """
+    setup log verbose level
     """
     # Delete all handlers
     logger.handlers = []
     # Set the logger level to INFO
-    logger.setLevel(logging.INFO)
+    logger.setLevel(level)
     # Add sys.sdout as handler
-    logger.addHandler(logging.StreamHandler(sys.stdout))
+    logger.addHandler(logging.StreamHandler(sys.stderr))
+
+
+def show_log():
+    """ 
+    To use only with Doctest !!!
+    Redirect logger output to sys.stdout
+    """
+    set_log_level(logging.INFO)
     # Show pdb_manip Logs:
     pdb_manip.show_log()
 
@@ -129,7 +136,7 @@ class Docking:
     """
 
     def __init__(self, name, lig_pdb=None, rec_pdb=None,
-                 lig_pdbqt=None, rec_pdbqt=None):
+                 lig_pdbqt=None, rec_pdbqt=None, log_level=logging.INFO):
         self.name = name
         self.lig_pdb = lig_pdb
         self.rec_pdb = rec_pdb
@@ -138,7 +145,8 @@ class Docking:
         self.dock_pdb = None
         self.dock_log = None
         self.dock_xml = None
-
+        set_log_level(log_level)
+        
     # @property is used to get the realtive path of this variables:
     # Usefull to print command in a shorter way
     @property
@@ -666,11 +674,12 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         os_command.create_and_go_dir(out_folder)
 
         # Check if output files exist:
+        # check_file_out = True
         if (check_file_out and
                 os_command.check_file_and_create_path(dock_log) and
                 os_command.check_file_and_create_path(dpf_out)):
-            logger.info("run_autodock_cpu() not launched {} "
-                        "already exist".format(dock_log))
+            logger.info(
+                "autodock_cpu: detected previous run log: %s. Will skip autodock calculations but perform result analysis. " % dock_log)
             self.dock_log = dock_log
             # self.dock_xml = dock_xml
             self.extract_autodock_pdb_affinity(dock_pdb)
@@ -690,6 +699,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                                        "-o", dpf_out] + option)
         cmd_prep.display()
         cmd_prep.run()
+        logger.info("autodock_cpu: preparatory step completed ...\n")
 
         # Run autodock
         cmd_dock = os_command.Command([AUTODOCK_BIN,
@@ -697,12 +707,16 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                                        "-log", dock_log])
         cmd_dock.display()
         cmd_dock.run()
+        logger.info("autodock_cpu: autodock_cpu completed ...\n")
 
         self.dock_log = dock_log
         # self.dock_xml = dock_xml
 
         # Exract pdb + affinities form the log file:
+        logger.info(
+            "autodock_cpu: will extract affinities for %s ...\n" % dock_pdb)
         self.extract_autodock_pdb_affinity(dock_pdb)
+        logger.info("autodock_cpu: affinities extracted ...\n")
 
         os.chdir(start_dir)
         return
@@ -811,25 +825,31 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
 
         """
 
+        use_GPU = True
         try:
+            logger.info("run_autodock: considering GPU version ...")
             AUTODOCK_GPU_BIN = os_command.which('autodock_gpu_256wi')
+        except (IOError, OSError):
+            use_GPU = False
+
+        if use_GPU:
             logger.info("Autodock GPU executable is {}".format(
                 AUTODOCK_GPU_BIN))
-            logger.info("Run Autodock GPU:")
             self.run_autodock_gpu(out_folder=out_folder,
                                   dock_out_prefix=dock_out_prefix,
                                   dock_log=dock_log,
                                   dock_pdb=dock_pdb,
                                   nrun=nrun,
                                   check_file_out=check_file_out)
-        except IOError:
-            logger.info("Run Autodock CPU:")
+        else:
+            logger.info("run_autodock: reverting to CPU version ...\n")
             self.run_autodock_cpu(out_folder=out_folder,
                                   dock_out_prefix=dock_out_prefix,
                                   dock_log=dock_log,
                                   dock_pdb=dock_pdb,
                                   nrun=nrun,
                                   check_file_out=check_file_out)
+        logger.info("run_autodock: autodock_cpu completed ...\n")
 
     def extract_autodock_pdb_affinity(self, out_pdb, reorder=True):
         """
@@ -840,6 +860,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         logger.info("extract_autodock_pdb_affinity:"
                     " dock_log is: {}".format(self._dock_log))
 
+        logger.info("extract_autodock_pdb_affinity: parsing %s\n" % out_pdb)
         filout = open(out_pdb, 'w')
 
         mode_info_dict = {}
@@ -877,6 +898,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
         self.dock_pdb = out_pdb
 
         if reorder:
+            logger.info(
+                "extract_autodock_pdb_affinity: Will reorder %s ...\n" % out_pdb)
             # Reorder coor models as function of affinity:
             dock_coor = pdb_manip.Multi_Coor(out_pdb)
             order_coor = pdb_manip.Multi_Coor()
@@ -888,6 +911,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             infos = []
             model = 1
             affinity = None
+            logger.info("Will reorder %d pdbs (%d affinities)\n" %
+                        (len(dock_coor.coor_list), len(affinity_list)))
             for i in range(len(dock_coor.coor_list)):
                 index = affinity_list.index(min(affinity_list))
                 # print(i, index)
@@ -895,7 +920,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
                 affinity_list[index] = 10e10
                 order_coor.coor_list.append(dock_coor.coor_list[index])
 
-                order_mode_info_dict[i + 1] = mode_info_dict[index + 1]
+                if index < len(dock_coor.coor_list) - 1:
+                    order_mode_info_dict[i + 1] = mode_info_dict[index + 1]
                 infos.append({"mode": model,
                               "run": index + 1,
                               "affinity": float(affinity),
@@ -908,6 +934,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
             self.affinity = order_mode_info_dict
             logger.info("reordered affinities: {}".format(self.affinity))
 
+        logger.info(
+            "extract_autodock_pdb_affinity: Will output affinities ...\n")
         self.out_affinities(out_pdb.replace(".pdb", "_log.txt"), infos)
 
         return
@@ -1048,12 +1076,12 @@ mode |   affinity | dist from best mode
             raise IOError("No receptor file defined")
 
         grid_npts = ((np.ceil(rec_com.get_box_dim()) +
-                     buffer_space) / spacing).astype(int)
+                      buffer_space) / spacing).astype(int)
         return grid_npts
 
     def run_autodock_docking(self, out_pdb, log=None, prepare_grid=True,
                              num_modes=100, center=None, spacing=0.375,
-                             grid_size=None, check_file_out=True):
+                             grid_size=None, grid_max_points=None, check_file_out=True):
         """
         Run docking using autodock.
 
@@ -1074,6 +1102,9 @@ mode |   affinity | dist from best mode
 
         :param grid_size: size in the docking box (x, y, z, Angstroms)
         :type grid_size: list, optional, default=None
+
+        :param grid_max_points: max number of grid points per dimension (256 for GPU) 
+        :type grid_max_points: int, optional, default=None
 
         :param check_file_out: flag to check or not if file has already been
             created. If the file is present then the command break.
@@ -1102,9 +1133,25 @@ mode |   affinity | dist from best mode
             self.dock_log = log
             return
 
+        logger.info("run_autodock_docking: preliminary grid analysis ...\n")
+
         # Prepare grid:
         if grid_size is not None:
             grid_npts = [int(i / spacing) + 1 for i in grid_size]
+            # MUST BE A CHECK TO INCREASE SPACING IF NEEDED ...
+            if grid_max_points != None:
+                cur_spacing = spacing
+                for i, npts in enumerate(grid_npts):
+                    if npts > grid_max_points:
+                        lspacing = (grid_size + spacing) / \
+                            float(grid_max_points)
+                        if lspacing > cur_spacing:
+                            cur_spacing = lspacing
+                if cur_spacing > spacing:
+                    spacing = cur_spacing
+                    grid_npts = [int(i / spacing) + 1 for i in grid_size]
+                    logger.info("Increasing grid spacing up to %f to preserve grid_max_points as %d" % (
+                        spacing, grid_max_points))
         else:
             grid_npts = None
 
@@ -1113,16 +1160,19 @@ mode |   affinity | dist from best mode
         logger.info("autodock_docking pdb is: {}".format(out_pdb))
 
         if prepare_grid:
+            logger.info("Will prepare grid ...\n")
             self.prepare_grid(out_folder,
                               gpf_out_prefix=out_pdb.replace(".pdb", ""),
                               spacing=spacing, grid_npts=grid_npts,
                               center=center,
                               check_file_out=check_file_out)
 
+        logger.info("run_autodock_docking: Will run autodock...\n")
         self.run_autodock(out_folder, nrun=num_modes,
                           dock_out_prefix=out_pdb.replace(".pdb", ""),
                           dock_log=None,
                           check_file_out=check_file_out)
+        logger.info("run_autodock_docking: autodock run terminated...\n")
 
         return
 
