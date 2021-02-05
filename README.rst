@@ -19,6 +19,9 @@ Docking Python
 .. image:: https://anaconda.org/bioconda/docking_py/badges/version.svg
     :target: https://anaconda.org/bioconda/docking_py
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4506970.svg
+   :target: https://doi.org/10.5281/zenodo.4506970
+
 Docking_py is a python library allowing a simplified use of the Smina, vina, qvina2 and qvinaw docking software. Docking_py can be easily automatize and scripted.
 
 
