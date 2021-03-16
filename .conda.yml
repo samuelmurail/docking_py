@@ -13,3 +13,4 @@ dependencies:
   - autodock-vina
   - qvina
   - autodock
+  - pytest
