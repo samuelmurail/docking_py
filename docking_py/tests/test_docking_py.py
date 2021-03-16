@@ -51,7 +51,7 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
     # Extratc Protein:
     # Keep only amino acid
     rec_coor = coor_1hsg.select_part_dict(
-        selec_dict={'res_name': pdb_manip.PROTEIN_AA})
+        selec_dict={'res_name': pdb_manip.PROTEIN_RES})
     out_rec = os.path.join(TEST_OUT, 'rec.pdb')
     rec_coor.write_pdb(out_rec)
 
@@ -97,10 +97,11 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
     # Check that receptor is fine
     coor_rec = pdb_manip.Coor(test_dock.rec_pdbqt)
     print('Protein atom number : {}'.format(coor_rec.select_part_dict(
-        {'res_name': pdb_manip.PROTEIN_AA}).num))
+        {'res_name': pdb_manip.PROTEIN_RES}).num))
 
     captured = capsys.readouterr()
     assert bool(re.match(
+        "File name doesn't finish with .pdb read it as .pdb anyway\n"
         "Succeed to read file .+rec.pdbqt ,  1844 atoms found\n"
         "Protein atom number : 1844\n",
         captured.out))
@@ -116,10 +117,11 @@ def test_prepare_ligand_recetor(tmp_path, capsys):
     # Check that ligand pdbqt is fine
     coor_lig = pdb_manip.Coor(test_dock.lig_pdbqt)
     print('Protein atom number : {}'.format(coor_lig.select_part_dict(
-        {'res_name': pdb_manip.PROTEIN_AA}).num))
+        {'res_name': pdb_manip.PROTEIN_RES}).num))
 
     captured = capsys.readouterr()
     assert bool(re.match(
+        "File name doesn't finish with .pdb read it as .pdb anyway\n"
         "Succeed to read file .+lig.pdbqt ,  50 atoms found\n"
         "Protein atom number : 0\n",
         captured.out))
@@ -142,7 +144,8 @@ def test_smina_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match('Succeed to read file .+/input/lig.pdbqt ,  50 '
+    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb anyway\n"
+                         'Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
                          '18.0 Å\n',
@@ -201,7 +204,8 @@ def test_vina_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match('Succeed to read file .+/input/lig.pdbqt ,  50 '
+    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb anyway\n"
+                         'Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
                          '18.0 Å\n',
@@ -274,7 +278,8 @@ def test_autodock_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match('Succeed to read file .+/input/lig.pdbqt ,  50 '
+    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb anyway\n"
+                         'Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
                          '18.0 Å\n',
@@ -339,7 +344,8 @@ def test_autodock_2_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match('Succeed to read file .+/input/lig.pdbqt ,  50 '
+    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb anyway\n"
+                         'Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
                          '18.0 Å\n',
