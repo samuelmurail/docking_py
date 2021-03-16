@@ -313,21 +313,12 @@ def test_autodock_rigid(tmp_path, capsys):
     rmsd_list = test_dock.compute_dock_rmsd(test_dock.lig_pdbqt)
     assert len(rmsd_list) >= 1
     assert rmsd_list[0] < 15
-    captured = capsys.readouterr()
-
-    test_dock.display()
-
-    captured = capsys.readouterr()
-    assert bool(re.match(
-        ("name         : test_autodock\n"
-         "lig_pdbqt    : .+lig.pdbqt\n"
-         "rec_pdbqt    : .+rec.pdbqt\n"
-         "dock_pdb     : .+test_autodock_vmd.pdb\n"
-         "dock_log     : .+test_autodock.dlg\n"
-         "gpf          : .+test_autodock.gpf\n"
-         "affinity     : {1: .+affinity': -.+}}\n"
-         ),
-        captured.out))
+    assert bool(re.match(".+lig.pdbqt", test_dock.lig_pdbqt))
+    assert bool(re.match(".+rec.pdbqt", test_dock.rec_pdbqt))
+    assert bool(re.match(".+test_autodock_vmd.pdb", test_dock.dock_pdb))
+    assert bool(re.match(".+test_autodock.gpf", test_dock.gpf))
+    assert bool(re.match(".+test_autodock.dlg", test_dock.dock_log))
+    assert bool(test_dock.affinity[1]['affinity'] < -10.0)
 
 
 def test_autodock_2_rigid(tmp_path, capsys):
@@ -388,18 +379,9 @@ def test_autodock_2_rigid(tmp_path, capsys):
     assert len(test_dock.affinity) == 2
     assert test_dock.affinity[1]['affinity'] < -10
 
-    captured = capsys.readouterr()
-
-    test_dock.display()
-
-    captured = capsys.readouterr()
-    assert bool(re.match(
-        ("name         : test_autodock_2\n"
-         "lig_pdbqt    : .+lig.pdbqt\n"
-         "rec_pdbqt    : .+rec.pdbqt\n"
-         "dock_pdb     : .+test_autodock_2_dock_vmd.pdb\n"
-         "dock_log     : .+test_autodock_2_dock.dlg\n"
-         "gpf          : .+test_autodock_2_dock.gpf\n"
-         "affinity     : {1: .+affinity': -.+}}\n"
-         ),
-        captured.out))
+    assert bool(re.match(".+lig.pdbqt", test_dock.lig_pdbqt))
+    assert bool(re.match(".+rec.pdbqt", test_dock.rec_pdbqt))
+    assert bool(re.match(".+test_autodock_2_dock_vmd.pdb", test_dock.dock_pdb))
+    assert bool(re.match(".+test_autodock_2_dock.dlg", test_dock.dock_log))
+    assert bool(re.match(".+test_autodock_2_dock.gpf", test_dock.gpf))
+    assert bool(test_dock.affinity[1]['affinity'] < -10.0)
