@@ -18,6 +18,7 @@ from pdb_manip_py import pdb_manip
 # Logging
 logger = logging.getLogger(__name__)
 
+
 def set_log_level(level=logging.INFO):
     """
     setup log verbose level
@@ -31,7 +32,7 @@ def set_log_level(level=logging.INFO):
 
 
 def show_log():
-    """ 
+    """
     To use only with Doctest !!!
     Redirect logger output to sys.stdout
     """
@@ -146,7 +147,7 @@ class Docking:
         self.dock_log = None
         self.dock_xml = None
         set_log_level(log_level)
-        
+
     # @property is used to get the realtive path of this variables:
     # Usefull to print command in a shorter way
     @property
@@ -681,7 +682,9 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                 os_command.check_file_and_create_path(dock_log) and
                 os_command.check_file_and_create_path(dpf_out)):
             logger.info(
-                "autodock_cpu: detected previous run log: %s. Will skip autodock calculations but perform result analysis. " % dock_log)
+                "autodock_cpu: detected previous run log: %s. Will skip "
+                "autodock calculations but perform result analysis"
+                "." % dock_log)
             self.dock_log = dock_log
             # self.dock_xml = dock_xml
             self.extract_autodock_pdb_affinity(dock_pdb)
@@ -901,7 +904,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
 
         if reorder:
             logger.info(
-                "extract_autodock_pdb_affinity: Will reorder %s ...\n" % out_pdb)
+                "extract_autodock_pdb_affinity: Will reorder "
+                "%s ...\n" % out_pdb)
             # Reorder coor models as function of affinity:
             dock_coor = pdb_manip.Multi_Coor(out_pdb)
             order_coor = pdb_manip.Multi_Coor()
@@ -1083,7 +1087,8 @@ mode |   affinity | dist from best mode
 
     def run_autodock_docking(self, out_pdb, log=None, prepare_grid=True,
                              num_modes=100, center=None, spacing=0.375,
-                             grid_size=None, grid_max_points=None, check_file_out=True):
+                             grid_size=None, grid_max_points=None,
+                             check_file_out=True):
         """
         Run docking using autodock.
 
@@ -1105,7 +1110,8 @@ mode |   affinity | dist from best mode
         :param grid_size: size in the docking box (x, y, z, Angstroms)
         :type grid_size: list, optional, default=None
 
-        :param grid_max_points: max number of grid points per dimension (256 for GPU) 
+        :param grid_max_points: max number of grid points per dimension
+            (256 for GPU)
         :type grid_max_points: int, optional, default=None
 
         :param check_file_out: flag to check or not if file has already been
@@ -1141,7 +1147,7 @@ mode |   affinity | dist from best mode
         if grid_size is not None:
             grid_npts = [int(i / spacing) + 1 for i in grid_size]
             # MUST BE A CHECK TO INCREASE SPACING IF NEEDED ...
-            if grid_max_points != None:
+            if grid_max_points is not None:
                 cur_spacing = spacing
                 for i, npts in enumerate(grid_npts):
                     if npts > grid_max_points:
@@ -1152,8 +1158,9 @@ mode |   affinity | dist from best mode
                 if cur_spacing > spacing:
                     spacing = cur_spacing
                     grid_npts = [int(i / spacing) + 1 for i in grid_size]
-                    logger.info("Increasing grid spacing up to %f to preserve grid_max_points as %d" % (
-                        spacing, grid_max_points))
+                    logger.info("Increasing grid spacing up to %f to preserve"
+                                " grid_max_points as %d" % (
+                                    spacing, grid_max_points))
         else:
             grid_npts = None
 

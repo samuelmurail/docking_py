@@ -144,7 +144,8 @@ def test_smina_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb anyway\n"
+    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb"
+                         " anyway\n"
                          'Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
@@ -204,7 +205,8 @@ def test_vina_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb anyway\n"
+    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb"
+                         " anyway\n"
                          'Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
@@ -278,7 +280,8 @@ def test_autodock_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb anyway\n"
+    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb"
+                         " anyway\n"
                          'Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
@@ -344,7 +347,8 @@ def test_autodock_2_rigid(tmp_path, capsys):
           " is {:.1f} Å".format(*center_lig, max_size))
 
     captured = capsys.readouterr()
-    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb anyway\n"
+    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb"
+                         " anyway\n"
                          'Succeed to read file .+/input/lig.pdbqt ,  50 '
                          'atoms found\nDo a rotation of 99.71°\nCenter '
                          'coordinates is 13.1 22.5 5.5, maximum dimension is '
