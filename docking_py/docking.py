@@ -678,9 +678,9 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
 
         # Check if output files exist:
         # check_file_out = True
-        if (check_file_out and
-                os_command.check_file_and_create_path(dock_log) and
-                os_command.check_file_and_create_path(dpf_out)):
+        if (check_file_out
+                and os_command.check_file_and_create_path(dock_log)
+                and os_command.check_file_and_create_path(dpf_out)):
             logger.info(
                 "autodock_cpu: detected previous run log: %s. Will skip "
                 "autodock calculations but perform result analysis"
