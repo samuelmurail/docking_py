@@ -391,6 +391,7 @@ class Docking:
  hydrogens -o lig.pdbqt
         >>> coor_lig = pdb_manip.Coor(test_dock.lig_pdbqt)\
         #doctest: +ELLIPSIS
+        File name doesn't finish with .pdb read it as .pdb anyway
         Succeed to read file .../lig.pdbqt ,  50 atoms found
         >>> test_dock.display() #doctest: +ELLIPSIS
         name         : test
@@ -490,7 +491,7 @@ class Docking:
         Succeed to read file .../1hsg.pdb ,  1686 atoms found
         >>> # Keep only amino acid
         >>> rec_coor = coor_1hsg.select_part_dict(\
-selec_dict={'res_name': pdb_manip.PROTEIN_AA})
+selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         >>> out_rec = os.path.join(TEST_OUT,'rec.pdb')
         >>> rec_coor.write_pdb(out_rec) #doctest: +ELLIPSIS
         Succeed to save file .../rec.pdb
@@ -503,6 +504,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_AA})
  -o .../rec.pdbqt
         >>> coor_rec = pdb_manip.Coor(test_dock.rec_pdbqt)\
         #doctest: +ELLIPSIS
+        File name doesn't finish with .pdb read it as .pdb anyway
         Succeed to read file .../rec.pdbqt ,  1844 atoms found
         >>> test_dock.display() #doctest: +ELLIPSIS
         name         : test
@@ -1409,7 +1411,7 @@ mode |   affinity | dist from best mode
         >>> TEST_OUT = str(getfixture('tmpdir'))
         >>> dock_1hsg = Docking(name='1hsg')
         >>> dock_1hsg.extract_lig_rec_pdb(os.path.join(TEST_PATH, '1hsg.pdb'),\
-        TEST_OUT, {'res_name': pdb_manip.PROTEIN_AA}, {'res_name': 'MK1'})\
+        TEST_OUT, {'res_name': pdb_manip.PROTEIN_RES}, {'res_name': 'MK1'})\
         #doctest: +ELLIPSIS
         Succeed to read file ...1hsg.pdb ,  1686 atoms found
         Succeed to save file ...1hsg_rec.pdb
@@ -1476,7 +1478,7 @@ mode |   affinity | dist from best mode
         >>> TEST_OUT = str(getfixture('tmpdir'))
         >>> dock_1hsg = Docking(name='1hsg')
         >>> dock_1hsg.extract_receptor(os.path.join(TEST_PATH, '1hsg.pdb'),\
-        TEST_OUT, {'res_name': pdb_manip.PROTEIN_AA})\
+        TEST_OUT, {'res_name': pdb_manip.PROTEIN_RES})\
         #doctest: +ELLIPSIS
         Succeed to read file ...1hsg.pdb ,  1686 atoms found
         Succeed to save file ...1hsg_rec.pdb
@@ -1513,7 +1515,7 @@ mode |   affinity | dist from best mode
         >>> TEST_OUT = str(getfixture('tmpdir'))
         >>> dock_4yob = Docking(name='4yob')
         >>> dock_4yob.extract_receptor(os.path.join(TEST_PATH, '4yob.pdb'),\
-        TEST_OUT, {'res_name': pdb_manip.PROTEIN_AA})\
+        TEST_OUT, {'res_name': pdb_manip.PROTEIN_RES})\
         #doctest: +ELLIPSIS
         Succeed to read file ...4yob.pdb ,  916 atoms found
         Succeed to save file ...4yob_rec.pdb
@@ -1548,7 +1550,7 @@ mode |   affinity | dist from best mode
         ref_coor = pdb_manip.Coor(ref_pdb)
         # Keep only amino acid
         aa_ref_coor = ref_coor.select_part_dict(
-            selec_dict={'res_name': pdb_manip.PROTEIN_AA})
+            selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         # Remove alter_loc B, C, D
         alter_loc_bcd = aa_ref_coor.get_index_selection(
             {'alter_loc': ['B', 'C', 'D']})
