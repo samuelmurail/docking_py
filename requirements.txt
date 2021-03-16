@@ -1,4 +1,3 @@
 numpy
-os_command_py
-pdb_manip_py
-pdb2pqr-htmd-propka30
+os_command_py==1.1.0
+pdb_manip_py==1.3.10
