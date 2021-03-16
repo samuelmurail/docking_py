@@ -4,7 +4,33 @@
 Installation
 ============
 
-1. Create Conda Environment
+1. Get sources from the `Github repo`_
+--------------------------------------
+
+The sources for Docking Python can be downloaded from the `Github repo`_.
+
+You can either clone the public repository:
+
+.. code-block:: console
+
+    $ git clone git://github.com/samuelmurail/docking_py
+
+Or download the `tarball`_:
+
+.. code-block:: console
+
+    $ curl -OJL https://github.com/samuelmurail/docking_py/tarball/master
+
+Once you have a copy of the source, switch to the ``docking_py`` directorie.
+
+.. code-block:: console
+
+    cd docking_py
+
+.. _Github repo: https://github.com/samuelmurail/docking_py
+.. _tarball: https://github.com/samuelmurail/docking_py/tarball/master
+
+2. Create Conda Environment
 ---------------------------
 
 You need to create a conda environment to be able to use:
@@ -35,33 +61,18 @@ This will create an environmnet called ``docking`` (or the name you defined). Yo
     $ conda activate docking
 
 
-2. Install docking_py
+3. Install docking_py
 ---------------------
 
-The sources for Docking Python can be downloaded from the `Github repo`_.
-
-You can either clone the public repository:
-
-.. code-block:: console
-
-    $ git clone git://github.com/samuelmurail/docking_py
-
-Or download the `tarball`_:
-
-.. code-block:: console
-
-    $ curl -OJL https://github.com/samuelmurail/docking_py/tarball/master
-
-Once you have a copy of the source, you can install it with:
+Once you have a copy of the source and have create a conda encironment,
+you can install it with:
 
 .. code-block:: console
 
     $ python setup.py install
 
-.. _Github repo: https://github.com/samuelmurail/docking_py
-.. _tarball: https://github.com/samuelmurail/docking_py/tarball/master
 
-3. Test Installation
+4. Test Installation
 --------------------
 
 To test the installation, simply use ``pytest``:
@@ -69,13 +80,14 @@ To test the installation, simply use ``pytest``:
 .. code-block:: console
 
     $ pytest
-    ================================ test session starts =================================
-    platform darwin -- Python 3.8.2, pytest-5.4.1, py-1.8.1, pluggy-0.13.1
-    rootdir: /Users/smurail/Documents/Code/docking_py, inifile: pytest.ini
-    collected 4 items
-    
-    docking_py/docking_py.py ..                                                    [ 50%]
-    tests/test_docking_py.py ..                                                    [100%]
-    
-    ================================= 4 passed in 17.44s =================================
+    ==================================== test session starts ====================================
+    platform linux -- Python 3.8.2, pytest-5.4.2, py-1.9.0, pluggy-0.13.1
+    rootdir: /home/murail/Documents/Code/docking_py, inifile: pytest.ini
+    plugins: cov-2.10.1
+    collected 13 items
+
+    docking_py/docking.py .......                                                         [ 53%]
+    docking_py/tests/test_docking_py.py ......                                            [100%]
+
+    ============================== 13 passed, 1 warning in 21.18s ===============================
 
