@@ -313,12 +313,13 @@ def test_autodock_rigid(tmp_path, capsys):
     rmsd_list = test_dock.compute_dock_rmsd(test_dock.lig_pdbqt)
     assert len(rmsd_list) >= 1
     assert rmsd_list[0] < 15
+    assert test_dock.affinity[1]['affinity'] < -10
+
     assert bool(re.match(".+lig.pdbqt", test_dock.lig_pdbqt))
     assert bool(re.match(".+rec.pdbqt", test_dock.rec_pdbqt))
     assert bool(re.match(".+test_autodock_vmd.pdb", test_dock.dock_pdb))
     assert bool(re.match(".+test_autodock.gpf", test_dock.gpf))
     assert bool(re.match(".+test_autodock.dlg", test_dock.dock_log))
-    assert bool(test_dock.affinity[1]['affinity'] < -10.0)
 
 
 def test_autodock_2_rigid(tmp_path, capsys):
@@ -384,4 +385,65 @@ def test_autodock_2_rigid(tmp_path, capsys):
     assert bool(re.match(".+test_autodock_2_dock_vmd.pdb", test_dock.dock_pdb))
     assert bool(re.match(".+test_autodock_2_dock.dlg", test_dock.dock_log))
     assert bool(re.match(".+test_autodock_2_dock.gpf", test_dock.gpf))
-    assert bool(test_dock.affinity[1]['affinity'] < -10.0)
+
+
+def test_autodock_cpu(tmp_path, capsys):
+
+    # Convert to str to avoid problem with python 3.5
+    TEST_OUT = str(tmp_path)
+
+    # Redirect pdb_manip logs
+    pdb_manip.show_log()
+
+    # Extract center and max_sizer:
+    lig_coor = pdb_manip.Coor(os.path.join(TEST_PATH, 'lig.pdbqt'))
+
+    center_lig = lig_coor.center_of_mass()
+    max_size = lig_coor.get_max_size()
+    print("Center coordinates is {:.1f} {:.1f} {:.1f}, maximum dimension"
+          " is {:.1f} Å".format(*center_lig, max_size))
+
+    captured = capsys.readouterr()
+    assert bool(re.match("File name doesn't finish with .pdb read it as .pdb"
+                         " anyway\n"
+                         'Succeed to read file .+/input/lig.pdbqt ,  50 '
+                         'atoms found\nDo a rotation of 99.71°\nCenter '
+                         'coordinates is 13.1 22.5 5.5, maximum dimension is '
+                         '18.0 Å\n',
+                captured.out))
+
+    # Create Docking object
+    test_dock = docking.Docking(
+        name='test_autodock',
+        rec_pdbqt=os.path.join(TEST_PATH, 'rec.pdbqt'),
+        lig_pdbqt=os.path.join(TEST_PATH, 'lig.pdbqt'))
+
+    # Prepare Grid
+    spacing = 0.375
+    test_dock.prepare_grid(out_folder=TEST_OUT, spacing=spacing,
+                           center=center_lig,
+                           grid_npts=[int(max_size / spacing)] * 3)
+
+    captured = capsys.readouterr()
+    assert bool(re.match(
+        ("python2.+ .+prepare_gpf4.py -r rec.pdbqt -l lig.pdbqt -o "
+         "test_autodock.gpf -p npts=48,48,48 -p "
+         "gridcenter=13.08,22.52,5.54\nautogrid4 -p test_autodock.gpf -l "
+         "test_autodock.gpf_log"),
+        captured.out))
+
+    test_dock.run_autodock_cpu(out_folder=TEST_OUT, nrun=2)
+
+    rmsd_list = test_dock.compute_dock_rmsd(test_dock.lig_pdbqt)
+
+    assert len(rmsd_list) == 2
+    assert rmsd_list[0] < 15
+
+    assert len(test_dock.affinity) == 2
+    assert test_dock.affinity[1]['affinity'] < -10
+
+    assert bool(re.match(".+lig.pdbqt", test_dock.lig_pdbqt))
+    assert bool(re.match(".+rec.pdbqt", test_dock.rec_pdbqt))
+    assert bool(re.match(".+test_autodock_vmd.pdb", test_dock.dock_pdb))
+    assert bool(re.match(".+test_autodock.gpf", test_dock.gpf))
+    assert bool(re.match(".+test_autodock.dlg", test_dock.dock_log))
