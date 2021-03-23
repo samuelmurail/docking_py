@@ -1,5 +1,8 @@
 FROM continuumio/miniconda3
 
+# Trick to ensure git clone is done if the deposit has been changed
+ADD https://api.github.com/repos/samuelmurail/gromacs_py/git/refs/heads/master version.json
+
 COPY .conda.yml /tmp/environment.yml
 RUN conda env create -f /tmp/environment.yml -n docking_py
 RUN echo "conda activate docking_py" >> ~/.bashrc
