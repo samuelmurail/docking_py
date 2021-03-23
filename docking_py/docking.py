@@ -460,7 +460,7 @@ class Docking:
         cmd_lig.run()
 
         if os.path.abspath(lig_pdbqt) != os.path.abspath(basename_pdbqt):
-            print("YO")
+            print("Something Wrong with lig_pdbqt path")
 
         self.lig_pdbqt = os.path.abspath(basename_pdbqt)
 
@@ -945,7 +945,6 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         logger.info("extract_autodock_pdb_affinity:"
                     " dock_xml is: {}".format(self._dock_xml))
 
-        print(out_pdb)
         self.log_to_pdb(out_pdb)
 
         if reorder:
@@ -1027,10 +1026,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                     if line.startswith("DOCKED: USER    Estimated Free"
                                        " Energy of Binding    ="):
                         affinity = float(line.split()[8])
-                        print(line)
                         affinity_list.append(affinity)
                         mode_info_dict[model] = {'affinity': affinity}
-                        print(affinity)
 
         filout.write("TER\n")
         filout.close()
@@ -1171,6 +1168,7 @@ mode |   affinity | dist from best mode
             grid_npts = None
 
         out_folder = os_command.get_directory(out_pdb)
+        out_pdb = os.path.basename(out_pdb)
         logger.info("run_autodock_docking log is: {}".format(log))
         logger.info("autodock_docking pdb is: {}".format(out_pdb))
 
