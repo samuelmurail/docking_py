@@ -685,9 +685,9 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                 and os_command.check_file_and_create_path(dock_log)
                 and os_command.check_file_and_create_path(dpf_out)):
             logger.info(
-                "autodock_cpu: detected previous run log: %s. Will skip "
+                "autodock_cpu: detected previous run log: {}. Will skip "
                 "autodock calculations but perform result analysis"
-                "." % dock_log)
+                ".".format(dock_log))
             self.dock_log = dock_log
             # self.dock_xml = dock_xml
             self.extract_autodock_pdb_affinity(dock_pdb)
@@ -722,7 +722,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
 
         # Exract pdb + affinities form the log file:
         logger.info(
-            "autodock_cpu: will extract affinities for %s ...\n" % dock_pdb)
+            "autodock_cpu: will extract affinities for {} ...\n".format(
+                dock_pdb))
         self.extract_autodock_pdb_affinity(dock_pdb)
         logger.info("autodock_cpu: affinities extracted ...\n")
 
@@ -807,7 +808,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                         "already exist".format(dock_log))
             self.dock_log = dock_log
             self.dock_xml = dock_xml
-            self.extract_autodock_pdb_affinity2(dock_pdb)
+            self.extract_autodock_pdb_affinity2(os.path.basename(dock_pdb))
             os.chdir(start_dir)
             return
 
@@ -822,14 +823,14 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         cmd_dock.display()
         cmd_dock.run()
 
-
         self.dock_log = dock_log
         self.dock_xml = dock_xml
 
-        os.chdir(start_dir)
         # Exract pdb + affinities form the log file:
         # (cpu version does not generate an xml file)
-        self.extract_autodock_pdb_affinity2(dock_pdb)
+        self.extract_autodock_pdb_affinity2(os.path.basename(dock_pdb))
+
+        os.chdir(start_dir)
 
         return
 
@@ -865,7 +866,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                                   dock_pdb=dock_pdb,
                                   nrun=nrun,
                                   check_file_out=check_file_out)
-        logger.info("run_autodock: autodock_cpu completed ...\n")
+        logger.info("run_autodock: autodock completed ...\n")
 
     def extract_autodock_pdb_affinity(self, out_pdb, reorder=True):
         """
@@ -878,7 +879,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         logger.info("extract_autodock_pdb_affinity:"
                     " dock_log is: {}".format(self._dock_log))
 
-        logger.info("extract_autodock_pdb_affinity: parsing %s\n" % out_pdb)
+        logger.info("extract_autodock_pdb_affinity: parsing {}\n".format(
+            out_pdb))
 
         self.log_to_pdb(out_pdb)
 
@@ -888,7 +890,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         if reorder:
             logger.info(
                 "extract_autodock_pdb_affinity: Will reorder "
-                "%s ...\n" % out_pdb)
+                "{} ...\n".format(out_pdb))
             # Reorder coor models as function of affinity:
             dock_coor = pdb_manip.Multi_Coor(out_pdb)
             order_coor = pdb_manip.Multi_Coor()
@@ -900,8 +902,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
             infos = []
             model = 1
             affinity = None
-            logger.info("Will reorder %d pdbs (%d affinities)\n" %
-                        (len(dock_coor.coor_list), len(self.affinity)))
+            logger.info("Will reorder {:d} pdbs ({:d} affinities)\n".format(
+                        len(dock_coor.coor_list), len(self.affinity)))
 
             for i in range(len(dock_coor.coor_list)):
 
@@ -929,7 +931,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
 
         logger.info(
             "extract_autodock_pdb_affinity: Will output affinities ...\n")
-        self.out_affinities(out_pdb.replace(".pdb", "_log.txt"), infos)
+        self.write_out_affinities(out_pdb.replace(".pdb", "_log.txt"), infos)
 
         return
 
@@ -940,16 +942,15 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
 
         GPU version
         """
-        self.log_to_pdb(out_pdb)
 
         logger.info("extract_autodock_pdb_affinity:"
-                    " out_pdb (w) is: {}".format(
-                        os_command.full_path_and_check(out_pdb)))
+                    " out_pdb (w) is: {}".format(out_pdb))
         logger.info("extract_autodock_pdb_affinity:"
                     " dock_log is: {}".format(self._dock_log))
         logger.info("extract_autodock_pdb_affinity:"
                     " dock_xml is: {}".format(self._dock_xml))
 
+        self.log_to_pdb(out_pdb)
 
         if reorder:
             # Reorder coor models as function of affinity:
@@ -983,7 +984,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
             self.affinity = order_mode_info_dict  # No use for merge
             # print("reordered affinities:", str(infos))
 
-        self.out_affinities(out_pdb.replace(".pdb", "_log.txt"), infos)
+        self.write_out_affinities(out_pdb.replace(".pdb", "_log.txt"), infos)
 
         return
 
@@ -1001,12 +1002,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
             Torsional Free Energy is not computed with GPU version.
 
         """
-        #filout = open(out_pdb, "r")
-
-        print('File:', out_pdb, 'Dir:', os.getcwd())
 
         filout = open(out_pdb, "w")
-        print('PATH', filout.name)
 
         mode_info_dict = {}
         affinity_list = []
@@ -1032,8 +1029,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                         if line[8:16].strip() == 'MODEL':
                             model = int(line[20:])
                             affinity = None
-                    if line.startswith("DOCKED: USER    Estimated Free"
-                                       " Energy of Binding    ="):
+                    if line.startswith("DOCKED: USER    Estimated Free " +
+                                       "Energy of Binding    ="):
                         affinity = float(line.split()[8])
                         affinity_list.append(affinity)
                         mode_info_dict[model] = {'affinity': affinity}
@@ -1044,8 +1041,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         self.affinity = mode_info_dict
         self.dock_pdb = out_pdb
 
-
-    def out_affinities(self, fn, affinities):
+    def write_out_affinities(self, fn, affinities):
         """ Save affinities in a file
         """
         header = "mode |   affinity | dist from best mode\n" +\
@@ -1056,7 +1052,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         filout.write(header)
         for aff in affinities:
             # f.write("%-5d   %-.1f \n" % (aff[0], aff[1]))
-            filout.write("%-5d   %-6.2f   %s\n" % (
+            filout.write("{:5d}   {:6.2f}   {}\n".format(
                 aff["mode"], aff["affinity"], aff["run"]))
         filout.close()
 
@@ -1172,8 +1168,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                 if cur_spacing > spacing:
                     spacing = cur_spacing
                     grid_npts = [int(i / spacing) + 1 for i in grid_size]
-                    logger.info("Increasing grid spacing up to %f to preserve"
-                                " grid_max_points as %d" % (
+                    logger.info("Increasing grid spacing up to {:f} to "
+                                "preserve grid_max_points as {:d}".format(
                                     spacing, grid_max_points))
         else:
             grid_npts = None
