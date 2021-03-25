@@ -162,7 +162,7 @@ def test_smina_rigid(tmp_path, capsys):
 
     test_dock.run_docking(out_dock,
                           num_modes=10,
-                          energy_range=1,
+                          energy_range=10,
                           exhaustiveness=2,
                           dock_bin='smina',
                           center=center_lig,
@@ -174,7 +174,7 @@ def test_smina_rigid(tmp_path, capsys):
     assert bool(re.match(
         ("smina --ligand .+lig.pdbqt --receptor .+rec.pdbqt --log "
          ".+test_smina_dock_log.txt --num_modes 10 --exhaustiveness 2"
-         " --energy_range 1 --out .+test_smina_dock.pdb "
+         " --energy_range 10 --out .+test_smina_dock.pdb "
          "--size_x 23.00 --size_y 23.00 --size_z 23.00"
          " --center_x 13.08 --center_y 22.52 --center_z 5.54"
          " --seed 1"),
@@ -186,6 +186,11 @@ def test_smina_rigid(tmp_path, capsys):
 
     assert len(test_dock.affinity) >= 1
     assert test_dock.affinity[1]['affinity'] < -10
+
+    # Read test_dock.dock_pdb
+    coor_dock = pdb_manip.Multi_Coor(test_dock.dock_pdb)
+    assert len(coor_dock.coor_list) >= 1
+    assert len(coor_dock.coor_list[0].atom_dict) == 50
 
 
 def test_vina_rigid(tmp_path, capsys):
@@ -223,7 +228,7 @@ def test_vina_rigid(tmp_path, capsys):
 
     test_dock.run_docking(out_dock,
                           num_modes=10,
-                          energy_range=1,
+                          energy_range=10,
                           exhaustiveness=2,
                           dock_bin='vina',
                           center=center_lig,
@@ -235,7 +240,7 @@ def test_vina_rigid(tmp_path, capsys):
     assert bool(re.match(
         ("vina --ligand .+lig.pdbqt --receptor .+rec.pdbqt --log "
          ".+test_vina_dock_log.txt --num_modes 10 --exhaustiveness 2"
-         " --energy_range 1 --out .+test_vina_dock.pdb "
+         " --energy_range 10 --out .+test_vina_dock.pdb "
          "--size_x 23.00 --size_y 23.00 --size_z 23.00"
          " --center_x 13.08 --center_y 22.52 --center_z 5.54"
          " --seed 1"),
@@ -261,6 +266,11 @@ def test_vina_rigid(tmp_path, capsys):
          "dock_log     : .+test_vina_dock_log.txt\n"
          "affinity     : {1: .+'affinity': .+}}\n"),
         captured.out))
+
+    # Read test_dock.dock_pdb
+    coor_dock = pdb_manip.Multi_Coor(test_dock.dock_pdb)
+    assert len(coor_dock.coor_list) >= 1
+    assert len(coor_dock.coor_list[0].atom_dict) == 50
 
 
 def test_autodock_rigid(tmp_path, capsys):
@@ -320,6 +330,11 @@ def test_autodock_rigid(tmp_path, capsys):
     assert bool(test_dock.dock_pdb.endswith("test_autodock_vmd.pdb"))
     assert bool(test_dock.gpf.endswith("test_autodock.gpf"))
     assert bool(test_dock.dock_log.endswith("test_autodock.dlg"))
+
+    # Read test_dock.dock_pdb
+    coor_dock = pdb_manip.Multi_Coor(test_dock.dock_pdb)
+    assert len(coor_dock.coor_list) >= 1
+    assert len(coor_dock.coor_list[0].atom_dict) == 50
 
 
 def test_autodock_2_rigid(tmp_path, capsys):
@@ -386,6 +401,11 @@ def test_autodock_2_rigid(tmp_path, capsys):
     assert bool(test_dock.dock_log.endswith("test_autodock_2_dock.dlg"))
     assert bool(test_dock.gpf.endswith("test_autodock_2_dock.gpf"))
 
+    # Read test_dock.dock_pdb
+    coor_dock = pdb_manip.Multi_Coor(test_dock.dock_pdb)
+    assert len(coor_dock.coor_list) == 2
+    assert len(coor_dock.coor_list[0].atom_dict) == 50
+
 
 def test_autodock_cpu(tmp_path, capsys):
 
@@ -447,3 +467,8 @@ def test_autodock_cpu(tmp_path, capsys):
     assert bool(test_dock.dock_pdb.endswith("test_autodock_vmd.pdb"))
     assert bool(test_dock.dock_log.endswith("test_autodock.dlg"))
     assert bool(test_dock.gpf.endswith("test_autodock.gpf"))
+
+    # Read test_dock.dock_pdb
+    coor_dock = pdb_manip.Multi_Coor(test_dock.dock_pdb)
+    assert len(coor_dock.coor_list) == 2
+    assert len(coor_dock.coor_list[0].atom_dict) == 50
