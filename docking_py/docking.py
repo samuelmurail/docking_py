@@ -822,13 +822,15 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         cmd_dock.display()
         cmd_dock.run()
 
+
         self.dock_log = dock_log
         self.dock_xml = dock_xml
+
+        os.chdir(start_dir)
         # Exract pdb + affinities form the log file:
         # (cpu version does not generate an xml file)
         self.extract_autodock_pdb_affinity2(dock_pdb)
 
-        os.chdir(start_dir)
         return
 
     def run_autodock(self, out_folder, dock_out_prefix=None,
@@ -938,14 +940,16 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
 
         GPU version
         """
+        self.log_to_pdb(out_pdb)
+
         logger.info("extract_autodock_pdb_affinity:"
-                    " out_pdb (w) is: {}".format(out_pdb))
+                    " out_pdb (w) is: {}".format(
+                        os_command.full_path_and_check(out_pdb)))
         logger.info("extract_autodock_pdb_affinity:"
                     " dock_log is: {}".format(self._dock_log))
         logger.info("extract_autodock_pdb_affinity:"
                     " dock_xml is: {}".format(self._dock_xml))
 
-        self.log_to_pdb(out_pdb)
 
         if reorder:
             # Reorder coor models as function of affinity:
@@ -997,15 +1001,20 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
             Torsional Free Energy is not computed with GPU version.
 
         """
+        #filout = open(out_pdb, "r")
 
-        filout = open(out_pdb, 'w')
+        print('File:', out_pdb, 'Dir:', os.getcwd())
+
+        filout = open(out_pdb, "w")
+        print('PATH', filout.name)
 
         mode_info_dict = {}
         affinity_list = []
         infos = []
         model = 0
         affinity = None
-        with open(self._dock_log) as pdbfile:
+
+        with open(self._dock_log, "r") as pdbfile:
             for line in pdbfile:
                 if line.startswith("DOCKED: "):
                     if (model != 0) and (affinity is not None):
@@ -1035,26 +1044,28 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         self.affinity = mode_info_dict
         self.dock_pdb = out_pdb
 
+
     def out_affinities(self, fn, affinities):
-        header = """
-mode |   affinity | dist from best mode
-     | (kcal/mol) | rmsd l.b.| rmsd u.b.
------+------------+----------+----------
-"""
-        f = open(fn, "w")
-        f.write(header)
+        """ Save affinities in a file
+        """
+        header = "mode |   affinity | dist from best mode\n" +\
+                 "     | (kcal/mol) | rmsd l.b.| rmsd u.b.\n" +\
+                 "-----+------------+----------+----------\n"
+
+        filout = open(fn, "w")
+        filout.write(header)
         for aff in affinities:
             # f.write("%-5d   %-.1f \n" % (aff[0], aff[1]))
-            f.write("%-5d   %-6.2f   %s\n" % (
+            filout.write("%-5d   %-6.2f   %s\n" % (
                 aff["mode"], aff["affinity"], aff["run"]))
-        f.close()
+        filout.close()
 
     def get_gridfld(self):
         """
         Get ``gridfld`` from the ``.gpf`` file.
         """
 
-        with open(self._gpf) as file:
+        with open(self._gpf, "r") as file:
             for line in file:
                 if line.startswith('gridfld'):
                     gridfld = line.split()[1]
@@ -1168,21 +1179,23 @@ mode |   affinity | dist from best mode
             grid_npts = None
 
         out_folder = os_command.get_directory(out_pdb)
-        out_pdb = os.path.basename(out_pdb)
+        basename = os.path.basename(out_pdb).replace(".pdb", "")
+
         logger.info("run_autodock_docking log is: {}".format(log))
         logger.info("autodock_docking pdb is: {}".format(out_pdb))
 
         if prepare_grid:
             logger.info("Will prepare grid ...\n")
             self.prepare_grid(out_folder,
-                              gpf_out_prefix=out_pdb.replace(".pdb", ""),
+                              gpf_out_prefix=basename,
                               spacing=spacing, grid_npts=grid_npts,
                               center=center,
                               check_file_out=check_file_out)
 
         logger.info("run_autodock_docking: Will run autodock...\n")
         self.run_autodock(out_folder, nrun=num_modes,
-                          dock_out_prefix=out_pdb.replace(".pdb", ""),
+                          dock_out_prefix=basename,
+                          dock_pdb=out_pdb,
                           dock_log=None,
                           check_file_out=check_file_out)
         logger.info("run_autodock_docking: autodock run terminated...\n")
@@ -1379,7 +1392,7 @@ mode |   affinity | dist from best mode
 
         mode_info_dict = {}
 
-        with open(self._dock_log) as dock_log:
+        with open(self._dock_log, "r") as dock_log:
             for line in dock_log:
                 if line.startswith('-----+------------+----------+----------'):
                     mode_read = True
