@@ -315,11 +315,11 @@ def test_autodock_rigid(tmp_path, capsys):
     assert rmsd_list[0] < 15
     assert test_dock.affinity[1]['affinity'] < -10
 
-    assert bool(re.match(".+lig.pdbqt", test_dock.lig_pdbqt))
-    assert bool(re.match(".+rec.pdbqt", test_dock.rec_pdbqt))
-    assert bool(re.match(".+test_autodock_vmd.pdb", test_dock.dock_pdb))
-    assert bool(re.match(".+test_autodock.gpf", test_dock.gpf))
-    assert bool(re.match(".+test_autodock.dlg", test_dock.dock_log))
+    assert bool(test_dock.lig_pdbqt.endswith("lig.pdbqt"))
+    assert bool(test_dock.rec_pdbqt.endswith("rec.pdbqt"))
+    assert bool(test_dock.dock_pdb.endswith("test_autodock_vmd.pdb"))
+    assert bool(test_dock.gpf.endswith("test_autodock.gpf"))
+    assert bool(test_dock.dock_log.endswith("test_autodock.dlg"))
 
 
 def test_autodock_2_rigid(tmp_path, capsys):
@@ -380,11 +380,11 @@ def test_autodock_2_rigid(tmp_path, capsys):
     assert len(test_dock.affinity) == 2
     assert test_dock.affinity[1]['affinity'] < -10
 
-    assert bool(re.match(".+lig.pdbqt", test_dock.lig_pdbqt))
-    assert bool(re.match(".+rec.pdbqt", test_dock.rec_pdbqt))
-    assert bool(re.match(".+test_autodock_2_dock_vmd.pdb", test_dock.dock_pdb))
-    assert bool(re.match(".+test_autodock_2_dock.dlg", test_dock.dock_log))
-    assert bool(re.match(".+test_autodock_2_dock.gpf", test_dock.gpf))
+    assert bool(test_dock.lig_pdbqt.endswith("lig.pdbqt"))
+    assert bool(test_dock.rec_pdbqt.endswith("rec.pdbqt"))
+    assert bool(test_dock.dock_pdb.endswith("test_autodock_2_dock_vmd.pdb"))
+    assert bool(test_dock.dock_log.endswith("test_autodock_2_dock.dlg"))
+    assert bool(test_dock.gpf.endswith("test_autodock_2_dock.gpf"))
 
 
 def test_autodock_cpu(tmp_path, capsys):
@@ -442,8 +442,8 @@ def test_autodock_cpu(tmp_path, capsys):
     assert len(test_dock.affinity) == 2
     assert test_dock.affinity[1]['affinity'] < -10
 
-    assert bool(re.match(".+lig.pdbqt", test_dock.lig_pdbqt))
-    assert bool(re.match(".+rec.pdbqt", test_dock.rec_pdbqt))
-    assert bool(re.match(".+test_autodock_vmd.pdb", test_dock.dock_pdb))
-    assert bool(re.match(".+test_autodock.gpf", test_dock.gpf))
-    assert bool(re.match(".+test_autodock.dlg", test_dock.dock_log))
+    assert bool(test_dock.lig_pdbqt.endswith("lig.pdbqt"))
+    assert bool(test_dock.rec_pdbqt.endswith("rec.pdbqt"))
+    assert bool(test_dock.dock_pdb.endswith("test_autodock_vmd.pdb"))
+    assert bool(test_dock.dock_log.endswith("test_autodock.dlg"))
+    assert bool(test_dock.gpf.endswith("test_autodock.gpf"))
