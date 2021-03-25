@@ -836,17 +836,20 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
 
     def run_autodock(self, out_folder, dock_out_prefix=None,
                      dock_log=None, dock_pdb=None,
-                     nrun=10, check_file_out=True):
+                     nrun=10, check_file_out=True, GPU=True):
         """
         Run autodock with cpu or gpu if available
 
         """
 
-        use_GPU = True
-        try:
-            logger.info("run_autodock: considering GPU version ...")
-            AUTODOCK_GPU_BIN = os_command.which('autodock_gpu_256wi')
-        except (IOError, OSError):
+        if GPU:
+            use_GPU = True
+            try:
+                logger.info("run_autodock: considering GPU version ...")
+                AUTODOCK_GPU_BIN = os_command.which('autodock_gpu_256wi')
+            except (IOError, OSError):
+                use_GPU = False
+        else:
             use_GPU = False
 
         if use_GPU:
@@ -1041,6 +1044,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         self.affinity = mode_info_dict
         self.dock_pdb = out_pdb
 
+        return
+
     def write_out_affinities(self, fn, affinities):
         """ Save affinities in a file
         """
@@ -1055,6 +1060,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
             filout.write("{:5d}   {:6.2f}   {}\n".format(
                 aff["mode"], aff["affinity"], aff["run"]))
         filout.close()
+
+        return
 
     def get_gridfld(self):
         """
@@ -1098,7 +1105,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
     def run_autodock_docking(self, out_pdb, log=None, prepare_grid=True,
                              num_modes=100, center=None, spacing=0.375,
                              grid_size=None, grid_max_points=None,
-                             check_file_out=True):
+                             check_file_out=True, GPU=True):
         """
         Run docking using autodock.
 
@@ -1193,7 +1200,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                           dock_out_prefix=basename,
                           dock_pdb=out_pdb,
                           dock_log=None,
-                          check_file_out=check_file_out)
+                          check_file_out=check_file_out,
+                          GPU=GPU)
         logger.info("run_autodock_docking: autodock run terminated...\n")
 
         return
@@ -1201,7 +1209,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
     def run_docking(self, out_pdb, log=None, dock_bin='vina',
                     num_modes=100, energy_range=10, exhaustiveness=16,
                     cpu=None, seed=None, autobox=False,
-                    center=None, grid_npts=None, min_rmsd_filter=None,
+                    center=None, grid_size=None, min_rmsd_filter=None,
                     scoring=None, check_file_out=True):
         """
         Run docking using vina, qvina, qvinaw or smina.
@@ -1240,8 +1248,8 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         :param center: coordinate of the center (x, y, z, Angstroms)
         :type center: list, optional, default=None
 
-        :param grid_npts: size in the docking box (x, y, z, Angstroms)
-        :type grid_npts: list, optional, default=None
+        :param grid_size: size in the docking box (x, y, z, Angstroms)
+        :type grid_size: list, optional, default=None
 
         :param check_file_out: flag to check or not if file has already been
             created. If the file is present then the command break.
@@ -1298,11 +1306,11 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
             option += ['--autobox_add', str(10.0)]
 
         # Define grid size:
-        if grid_npts is None:
+        if grid_size is None:
             grid_npts = self.rec_grid()
-            logger.info('Grid points: {}'.format(grid_npts))
+            logger.info('Grid points: {}'.format(grid_size))
         else:
-            grid_npts = np.array(grid_npts).astype(int)
+            grid_npts = np.array(grid_size).astype(int)
 
         option += ["--size_x", '{:.2f}'.format(grid_npts[0]),
                    "--size_y", '{:.2f}'.format(grid_npts[1]),
