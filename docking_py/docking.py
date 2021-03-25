@@ -690,7 +690,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                 ".".format(dock_log))
             self.dock_log = dock_log
             # self.dock_xml = dock_xml
-            self.extract_autodock_pdb_affinity(dock_pdb)
+            self.extract_autodock_pdb_affinity(os.path.basename(dock_pdb))
             os.chdir(start_dir)
             return
 
@@ -724,7 +724,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
         logger.info(
             "autodock_cpu: will extract affinities for {} ...\n".format(
                 dock_pdb))
-        self.extract_autodock_pdb_affinity(dock_pdb)
+        self.extract_autodock_pdb_affinity(os.path.basename(dock_pdb))
         logger.info("autodock_cpu: affinities extracted ...\n")
 
         os.chdir(start_dir)

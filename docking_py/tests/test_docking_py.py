@@ -166,7 +166,7 @@ def test_smina_rigid(tmp_path, capsys):
                           exhaustiveness=2,
                           dock_bin='smina',
                           center=center_lig,
-                          grid_npts=[max_size + 5] * 3,
+                          grid_size=[max_size + 5] * 3,
                           seed=1)
 
     captured = capsys.readouterr()
@@ -232,7 +232,7 @@ def test_vina_rigid(tmp_path, capsys):
                           exhaustiveness=2,
                           dock_bin='vina',
                           center=center_lig,
-                          grid_npts=[max_size + 5] * 3,
+                          grid_size=[max_size + 5] * 3,
                           seed=1)
 
     captured = capsys.readouterr()
