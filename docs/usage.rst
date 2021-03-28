@@ -48,7 +48,7 @@ Then you need to extract the receptor coordinates, we will use the `1hsg.pdb` PD
 
     >>> # Keep only the amino acids
     >>> rec_coor = coor_1hsg.select_part_dict(\
-    ...     selec_dict={'res_name': pdb_manip.PROTEIN_AA)})
+    ...     selec_dict={'res_name': pdb_manip.PROTEIN_RES)})
     >>> rec_coor.write_pdb('rec.pdb')
     Succeed to save file rec.pdb
 
