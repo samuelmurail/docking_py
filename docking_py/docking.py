@@ -1294,6 +1294,7 @@ selec_dict={'res_name': pdb_manip.PROTEIN_RES})
                         " exists".format(out_pdb))
             self.dock_pdb = out_pdb
             self.dock_log = log
+            self.extract_affinity()
             return
 
         option = []
