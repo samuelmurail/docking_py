@@ -323,8 +323,7 @@ class Docking:
             return
 
         u = mda.Universe(self._dock_pdb)
-        
-        
+
         # Need simpletraj library
         view = nv.show_mdanalysis(u)
         view.add_representation('licorice', 'all')
