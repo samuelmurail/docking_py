@@ -7,7 +7,7 @@ Welcome to Docking Python's documentation!
 
    readme
    installation
-   usage
+   notebook/Usage.ipynb
    modules
    contributing
    authors
