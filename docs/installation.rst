@@ -4,10 +4,10 @@
 Installation
 ============
 
-1. Get sources from the `Github repo`_
+1. Get sources from the `GithubRepo`_
 --------------------------------------
 
-The sources for Docking Python can be downloaded from the `Github repo`_.
+The sources for Docking Python can be downloaded from the `GithubRepo`_.
 
 You can either clone the public repository:
 
@@ -27,19 +27,24 @@ Once you have a copy of the source, switch to the ``docking_py`` directorie.
 
     cd docking_py
 
-.. _Github repo: https://github.com/samuelmurail/docking_py
+
+.. _GithubRepo: https://github.com/samuelmurail/docking_py
 .. _tarball: https://github.com/samuelmurail/docking_py/tarball/master
+
 
 2. Create Conda Environment
 ---------------------------
 
-You need to create a conda environment to be able to use:
+
+You need to create a conda environment to be able to use:  
+
 
 * vina
 * smina
 * qvina2 and qvinaw
 * MGLTools for ``prepare_ligand4.py`` and ``prepare_receptor4.py`` scripts.
 * Autodock with or without GPU *support*
+
 
 Use `conda en create` to create it using the ``.conda.yml`` file. You can overide the environmnent name using the option ``--name YOUR_NAME``.
 
@@ -54,7 +59,7 @@ If you use a linux OS and have a GPU card, you could try the ``autodock-gpu`` ve
     $ conda env create -f .conda_gpu.yml
 
 
-This will create an environmnet called ``docking`` (or the name you defined). You will then, need to activate the environmnent:
+This will create an environmnet called ``docking`` or ``docking_gpu`` (or the name you defined). You will then, need to activate the environmnent:
 
 .. code-block:: console
 
