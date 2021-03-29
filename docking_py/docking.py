@@ -340,7 +340,7 @@ class Docking:
             ref_str = nv.TextStructure(coor_ref.get_structure_string())
             view.add_component(ref_str, default=False)
             view.component_2.add_representation(
-                'licorice', selection='protein', color='red')
+                'licorice', selection='ligand', color='red')
 
         view.center()
 
