@@ -28,7 +28,6 @@ docking\_py.docking module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 
