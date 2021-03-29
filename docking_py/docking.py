@@ -302,23 +302,32 @@ class Docking:
         """ Return a `nglview` object to view the object coordinates
         in a jupyter notebook with the module ``nglview``.
 
+        MDAnalysis module is required.
+
         """
 
-        import nglview as nv
-        from gromacs_py import gmx
+        try:
+            import nglview as nv
+        except ImportError:
+            logger.warning(
+                'Could not load nglview \nInstall it using conda:\n' +
+                'conda install -c conda-forge nglview')
+            return
 
-        # To load the dock structures as a trajectory
-        # The pdb file must be convert to a traj file eg. xtc
-        dock_gmx = gmx.GmxSys(name='dock', coor_file=self._dock_pdb)
-        dock_gmx.tpr = self._dock_pdb
-        dock_gmx.xtc = self._dock_pdb
-        dock_gmx.convert_trj(traj=True, pbc='none')
+        try:
+            import MDAnalysis as mda
+        except ImportError:
+            logger.warning(
+                'Could not load MDAnalysis \nInstall it using conda:\n' +
+                'conda install -c conda-forge MDAnalysis')
+            return
 
+        u = mda.Universe(self._dock_pdb)
+        
+        
         # Need simpletraj library
-        dock_traj = nv.SimpletrajTrajectory(dock_gmx._xtc, self._dock_pdb)
-        view = nv.NGLWidget(dock_traj)
+        view = nv.show_mdanalysis(u)
         view.add_representation('licorice', 'all')
-        view.add_representation('cartoon', 'all')
 
         # In theory could be simpler
         # with add_component(self._rec_pdb)
