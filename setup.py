@@ -11,8 +11,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = ['numpy',
-                'os_command_py',
-                'pdb_manip_py',
+                'os_command_py==1.1.0',
+                'pdb_manip_py==1.3.10',
                 'pdb2pqr-htmd-propka30']
 
 test_requirements = ['pytest>=3', ]
