@@ -4,6 +4,7 @@ wheel
 watchdog
 flake8
 tox
+tox-conda
 coverage
 Sphinx
 twine
