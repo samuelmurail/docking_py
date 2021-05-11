@@ -83,6 +83,9 @@ else:
     elif os_command.check_file_exist(os.path.join(
             CONDA_PREFIX, 'bin/python2.7')):
         MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.7')
+    else:
+        MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2')
+
     logger.info("Python Smina is {}".format(MGLTOOL_PYTHON))
 
     PREPARE_GPF = os.path.join(
