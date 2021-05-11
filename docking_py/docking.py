@@ -59,10 +59,10 @@ else:
     logger.info("Vina executable is {}".format(VINA_BIN))
 
     QVINA_BIN = os_command.which('qvina2')
-    logger.info("Vina executable is {}".format(VINA_BIN))
+    logger.info("QVina executable is {}".format(QVINA_BIN))
 
     QVINAW_BIN = os_command.which('qvinaw')
-    logger.info("Vina executable is {}".format(VINA_BIN))
+    logger.info("QVinaw executable is {}".format(QVINAW_BIN))
 
     # MGLTools scripts:
 
