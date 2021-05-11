@@ -1,5 +1,5 @@
 {% set name = "docking_py" %}
-{% set version = "0.2.3" %}
+{% set version = "0.3.0" %}
 
 package:
   name: "{{ name|lower }}"

@@ -11,14 +11,14 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = ['numpy',
-                'os_command_py',
-                'pdb_manip_py',
+                'os_command_py==1.1.0',
+                'pdb_manip_py==1.3.10',
                 'pdb2pqr-htmd-propka30']
 
 test_requirements = ['pytest>=3', ]
 
 setup(
-    version='0.2.3',
+    version='0.3.0',
     author="Samuel Murail",
     author_email='samuel.murail@u-paris.fr',
     python_requires='>=3.5',
