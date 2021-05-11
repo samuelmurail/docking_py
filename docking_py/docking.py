@@ -75,7 +75,9 @@ else:
     CONDA_PREFIX = os.getenv('CONDA_PREFIX')
     # With tox CONDA_PREFIX is None
     if CONDA_PREFIX is None:
-        CONDA_PREFIX = '/'.join(PREPARE_REC.split('/')[:-2])
+        # Try to fix issues with tox on Travic CI
+        CONDA_PREFIX = '/'.join(SMINA_BIN.split('/')[:-2])
+        #CONDA_PREFIX = '/'.join(PREPARE_REC.split('/')[:-2])
 
     if os_command.check_file_exist(os.path.join(
             CONDA_PREFIX, 'bin/python2.5')):
