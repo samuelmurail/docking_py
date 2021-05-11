@@ -35,7 +35,9 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
     ],
-    description="Docking_py is a python library allowing a simplified use of the Smina, vina, qvina2 and qvinaw docking software. Docking_py can be easily automatize and scripted.",
+    description="Docking_py is a python library allowing a simplified use of "\
+                "the Smina, vina, qvina2 and qvinaw docking software. "\
+                "Docking_py can be easily automatize and scripted.",
     entry_points={
         'console_scripts': [
             'docking_py=docking_py.cli:main',
