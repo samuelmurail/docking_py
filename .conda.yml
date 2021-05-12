@@ -14,3 +14,4 @@ dependencies:
   - qvina
   - autodock
   - pytest
+  - pip
