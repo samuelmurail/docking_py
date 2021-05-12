@@ -72,12 +72,14 @@ else:
     logger.info("MGLTools receptor script is {}".format(PREPARE_REC))
 
     # Find python 2 from conda env
-    CONDA_PREFIX = os.getenv('CONDA_PREFIX')
+    # Try to fix issues with tox on Travic CI
+    # Issue with os.getenv() with tox command
+    # CONDA_PREFIX = os.getenv('CONDA_PREFIX')
+    CONDA_PREFIX = '/'.join(SMINA_BIN.split('/')[:-2])
     # With tox CONDA_PREFIX is None
     if CONDA_PREFIX is None:
-        # Try to fix issues with tox on Travic CI
-        CONDA_PREFIX = '/'.join(SMINA_BIN.split('/')[:-2])
-        #CONDA_PREFIX = '/'.join(PREPARE_REC.split('/')[:-2])
+        # CONDA_PREFIX = '/'.join(SMINA_BIN.split('/')[:-2])
+        CONDA_PREFIX = '/'.join(PREPARE_REC.split('/')[:-2])
 
     if os_command.check_file_exist(os.path.join(
             CONDA_PREFIX, 'bin/python2.5')):
@@ -86,7 +88,8 @@ else:
             CONDA_PREFIX, 'bin/python2.7')):
         MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2.7')
     else:
-        MGLTOOL_PYTHON = os.path.join(CONDA_PREFIX, 'bin/python2')
+        raise NameError('Could not find MGLTOOL_PYTHON in {}'.format(
+            CONDA_PREFIX))
 
     logger.info("Python Smina is {}".format(MGLTOOL_PYTHON))
 
