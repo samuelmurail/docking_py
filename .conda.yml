@@ -13,5 +13,6 @@ dependencies:
   - autodock-vina
   - qvina
   - autodock
+  - autogrid==4.2.6
   - pytest
   - pip
