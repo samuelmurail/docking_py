@@ -40,6 +40,26 @@ Features
     * Qvina2
     * Qvinaw
 
+Citing this work
+----------------
+
+If you use the code or data in this package, please cite:
+
+```bibtex
+@Article{SeamDock2021,
+  title = {SeamDock: An Interactive and Collaborative Online Docking Resource to Assist Small Compound Molecular Docking},
+  shorttitle = {SeamDock},
+  author = {Murail, Samuel and de Vries, Sjoerd J. and Rey, Julien and Moroy, Gautier and Tuff{\'e}ry, Pierre},
+  year = {2021},
+  journal = {Frontiers in Molecular Biosciences},
+  volume = {8},
+  pages = {762},
+  issn = {2296-889X},
+  doi = {10.3389/fmolb.2021.716466},
+}
+```
+
+
 Credits
 -------
 
