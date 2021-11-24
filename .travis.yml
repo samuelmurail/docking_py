@@ -7,7 +7,7 @@ python:
 matrix:
     include:
         - os: linux
-        - os: osx
+#        - os: osx  # Removed because of credit issues
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; 
