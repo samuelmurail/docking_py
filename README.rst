@@ -16,6 +16,9 @@ Docking Python
 .. image:: https://badge.fury.io/py/docking-py.svg
     :target: https://badge.fury.io/py/docking-py
 
+.. image:: https://static.pepy.tech/badge/docking-py
+    :target: https://pepy.tech/projects/docking-py
+
 .. image:: https://anaconda.org/bioconda/docking_py/badges/version.svg
     :target: https://anaconda.org/bioconda/docking_py
 
